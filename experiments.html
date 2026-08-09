@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Self-Experiments</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="experiments">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Experiments</div>
+        <h1>Self-Experiments</h1>
+        <p class="page-intro">Test one variable at a time and see what actually changes.</p>
+      </div>
+
+      <div id="new-experiment-form" class="card" style="display: none;">
+        <div class="card-label">New Experiment</div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Experiment Name</label>
+          <input type="text" id="exp-name" class="note-input" style="min-height: auto;" placeholder="Give it a short name." />
+        </div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Variable Type</label>
+          <select id="exp-variable" class="note-input" style="min-height: auto;">
+            <option>Physiological</option>
+            <option>Psychological</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">What You're Testing</label>
+          <textarea id="exp-desc" class="note-input" placeholder="Describe what you're testing and why."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" id="exp-submit">Begin Experiment</button>
+          <button class="btn btn-secondary" id="exp-cancel">Cancel</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="show-new-experiment" style="margin-bottom: 16px;">Start New Experiment</button>
+
+      <div id="experiments-list"></div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

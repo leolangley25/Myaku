@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Trends</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="trends">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Trends</div>
+        <h1>Burnout Risk Trend</h1>
+        <p class="page-intro">This tracks how your physical and mental signals move together over time.</p>
+      </div>
+
+      <div class="card">
+        <div class="chart-wrap" id="trend-chart" style="height: 240px;"></div>
+        <div class="chart-legend" id="trend-legend"></div>
+        <p class="page-intro" style="margin-top: 18px;">A rising trend means strain is compounding, not that burnout is certain.</p>
+      </div>
+
+      <div class="card-row" style="margin-top: 16px;">
+        <div class="card">
+          <div class="card-label">Physiological Signal</div>
+          <div id="physio-badge"></div>
+          <p class="page-intro" style="margin-top: 10px;">Your physiological signal has declined steadily over the last three weeks.</p>
+        </div>
+        <div class="card">
+          <div class="card-label">Psychological Signal</div>
+          <div id="psych-badge"></div>
+          <p class="page-intro" style="margin-top: 10px;">Your psychological strain has increased steadily over the same period.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

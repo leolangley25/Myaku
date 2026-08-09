@@ -1,0 +1,10 @@
+node_modules/
+.claude/settings.local.json
+.env
+.env.local
+*.db
+*.sqlite
+*.sqlite3
+dist/
+.DS_Store
+Thumbs.db

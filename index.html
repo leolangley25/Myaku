@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="dashboard">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow" id="today-date">Today</div>
+        <h1>Dashboard</h1>
+        <p class="page-intro">Here's where things stand today.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-label">Readiness Score</div>
+          <div class="score-display">
+            <span class="score-number" id="readiness-number">—</span>
+            <span class="score-denom">/ 100</span>
+          </div>
+          <div id="readiness-badge" style="margin-top: 10px;"></div>
+          <p class="page-intro" style="margin-top: 12px;">Built from last night's sleep, HRV, and resting heart rate.</p>
+          <div id="readiness-sparkline" style="height: 56px; margin-top: 18px;"></div>
+          <div id="readiness-breakdown" style="margin-top: 4px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Burnout Risk</div>
+          <div id="burnout-badge"></div>
+          <p class="page-intro" style="margin-top: 10px;" id="burnout-summary"></p>
+          <div id="burnout-sparkline" style="height: 56px; margin-top: 18px;"></div>
+          <a href="trends.html" class="muted-link" style="display: inline-block; margin-top: 16px;">View Full Trend</a>
+        </div>
+      </div>
+
+      <div class="card" id="checkin-cta" style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <div>
+          <div class="experiment-title" style="margin-bottom: 4px;">Weekly Check-In</div>
+          <p class="page-intro" id="checkin-status">Your weekly check-in is ready.</p>
+        </div>
+        <a href="checkin.html" class="btn btn-primary" id="checkin-btn" style="flex-shrink: 0;">Start Check-In</a>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">Insights</div>
+        <div id="insight-preview"></div>
+        <a href="insights.html" class="muted-link">View All Insights</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
