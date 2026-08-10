@@ -10,6 +10,15 @@
 
   const signupForm = document.getElementById("signup-form");
   if (signupForm) {
+    let selectedRole = "student_athlete";
+    document.querySelectorAll(".role-option").forEach((opt) => {
+      opt.addEventListener("click", () => {
+        document.querySelectorAll(".role-option").forEach((o) => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        selectedRole = opt.getAttribute("data-role");
+      });
+    });
+
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const errorEl = document.getElementById("signup-error");
@@ -23,14 +32,14 @@
         const res = await fetch("/api/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify({ name, email, password, role: selectedRole }),
         });
         const data = await res.json();
         if (!res.ok) {
           showError(errorEl, data.error || FALLBACK_ERROR);
           return;
         }
-        window.location.href = "connect.html";
+        window.location.href = data.role === "admin" ? "admin.html" : "calibrate.html";
       } catch (err) {
         showError(errorEl, FALLBACK_ERROR);
       }
@@ -58,7 +67,7 @@
           showError(errorEl, data.error || FALLBACK_ERROR);
           return;
         }
-        window.location.href = "index.html";
+        window.location.href = data.role === "admin" ? "admin.html" : "index.html";
       } catch (err) {
         showError(errorEl, FALLBACK_ERROR);
       }

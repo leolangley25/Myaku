@@ -46,7 +46,7 @@ const MyakuCharts = (function () {
           x2: right,
           y1: y,
           y2: y,
-          stroke: "#e3e5e0",
+          stroke: "#ecdfe2",
           "stroke-width": 1,
         })
       );
@@ -94,7 +94,7 @@ const MyakuCharts = (function () {
         x,
         y: height - 8,
         "font-size": 10.5,
-        fill: "#9aa39d",
+        fill: "#ac989b",
         "text-anchor": i === 0 ? "start" : i === n - 1 ? "end" : "middle",
       });
       t.textContent = label;

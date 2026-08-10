@@ -11,9 +11,25 @@
     <div class="auth-card">
       <div class="auth-brand">Myaku</div>
       <h1>Create Account</h1>
-      <p class="page-intro">Set up your private, athlete-owned Myaku account.</p>
+      <p class="page-intro">Set up your private Myaku account.</p>
 
       <form id="signup-form">
+        <label class="field-label" style="margin-top: 0;">Account Type</label>
+        <div class="role-options" id="role-options">
+          <div class="role-option selected" data-role="student_athlete">
+            <div class="role-option-title">Student Athlete</div>
+            <div class="role-option-desc">Training, coursework, and personal life, tracked together.</div>
+          </div>
+          <div class="role-option" data-role="individual">
+            <div class="role-option-title">Individual</div>
+            <div class="role-option-desc">Work, activity, and personal life, tracked together.</div>
+          </div>
+          <div class="role-option" data-role="admin">
+            <div class="role-option-title">Admin</div>
+            <div class="role-option-desc">Aggregate, anonymized usage stats only.</div>
+          </div>
+        </div>
+
         <label class="field-label" for="name">Name</label>
         <input type="text" id="name" class="field-input" autocomplete="name" required />
 

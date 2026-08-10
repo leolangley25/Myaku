@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Calibrate Your Baseline</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="calibrate">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Calibrate</div>
+        <h1>Calibrate Your Baseline</h1>
+        <p class="page-intro">This helps Myaku interpret your data correctly from day one.</p>
+      </div>
+
+      <div class="card">
+        <div id="athlete-fields">
+          <label class="field-label" style="margin-top: 0;" for="sport">Sport</label>
+          <input type="text" id="sport" class="field-input" placeholder="e.g. Soccer, Swimming, Track" />
+
+          <label class="field-label" for="training-days">Training Days Per Week</label>
+          <input type="number" id="training-days" class="field-input" min="0" max="7" placeholder="e.g. 5" />
+        </div>
+
+        <label class="field-label" style="margin-top: 14px;" for="bedtime">Typical Bedtime</label>
+        <input type="time" id="bedtime" class="field-input" />
+
+        <label class="field-label" for="course-load" id="course-load-label">Course Load</label>
+        <select id="course-load" class="field-input">
+          <option value="" selected disabled>Select One</option>
+          <option value="Light">Light</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Heavy">Heavy</option>
+        </select>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="section-title" style="margin-bottom: 18px;">Baseline Stress Levels</div>
+        <div id="baseline-domains"></div>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 16px; align-items: center;">
+        <button class="btn btn-primary" id="calibrate-submit">Save Calibration</button>
+        <a href="connect.html" class="muted-link">Skip For Now</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/roleConfig.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/calibrate.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Admin Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-admin="true">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Admin</div>
+        <h1>Admin Dashboard</h1>
+        <p class="page-intro">See aggregate, anonymized activity across every account, never individual data.</p>
+      </div>
+
+      <div class="card-row">
+        <div class="card">
+          <div class="card-label">Total Users</div>
+          <div class="score-display">
+            <span class="score-number" id="admin-total-users">0</span>
+          </div>
+          <div id="admin-users-by-role" style="margin-top: 10px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Check-Ins</div>
+          <div class="score-display">
+            <span class="score-number" id="admin-total-checkins">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-label">Average Stress By Domain</div>
+        <div id="admin-avg-stress"></div>
+      </div>
+
+      <div class="card-row" style="margin-top: 16px;">
+        <div class="card">
+          <div class="card-label">Logs By Type</div>
+          <div id="admin-logs-by-type"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Other Activity</div>
+          <div id="admin-other"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

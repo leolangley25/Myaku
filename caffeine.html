@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Caffeine</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="caffeine" data-log-type="caffeine">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Caffeine</div>
+        <h1>Caffeine</h1>
+        <p class="page-intro">Log what you drink and when it happens.</p>
+      </div>
+
+      <div id="log-insight"></div>
+
+      <div class="card-row" style="margin-top: 16px;">
+        <div class="card">
+          <div class="card-label">Today's Total</div>
+          <div class="score-display">
+            <span class="score-number" id="caffeine-total-number">0</span>
+            <span class="score-denom">mg</span>
+          </div>
+          <div id="caffeine-total-badge" style="margin-top: 10px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Quick Add</div>
+          <div class="preset-row" id="caffeine-presets"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-label">Caffeine In Your System</div>
+        <div class="chart-wrap" id="caffeine-decay-chart" style="height: 200px; margin-top: 8px;"></div>
+        <p class="empty-note" id="caffeine-decay-caption" style="margin-top: 12px;"></p>
+      </div>
+
+      <div class="divider-label">Or Log Something Else</div>
+
+      <div class="grid-2">
+        <div id="log-form-container"></div>
+        <div>
+          <div class="section-title">Today's Entries</div>
+          <div id="log-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/charts.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/logConfig.js"></script>
+  <script src="js/logpage.js"></script>
+  <script src="js/caffeine.js"></script>
+</body>
+</html>

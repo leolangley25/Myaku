@@ -19,6 +19,20 @@
     return `<span class="badge ${badgeClassForLevel(level)}"><span class="badge-dot"></span>${label}</span>`;
   }
 
+  function getGreeting() {
+    const h = new Date().getHours();
+    if (h < 5) return "Good Night";
+    if (h < 12) return "Good Morning";
+    if (h < 17) return "Good Afternoon";
+    if (h < 21) return "Good Evening";
+    return "Good Night";
+  }
+
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
   function insightCardHTML(insight) {
     return `
       <div class="card insight-card">
@@ -81,14 +95,57 @@
       cssVar("--risk-elevated")
     );
 
-    const done = localStorage.getItem("myakuCheckinDone") === "true";
-    const cta = document.getElementById("checkin-cta");
-    if (done) {
-      document.getElementById("checkin-status").textContent = "You're all set for this week.";
-      document.getElementById("checkin-btn").remove();
+    if (burnout.level !== "low") {
+      fetch("/api/phases")
+        .then((r) => r.json())
+        .then((data) => {
+          const todayStr = todayKey();
+          const active = (data.phases || []).find((p) => p.start_date <= todayStr && todayStr <= p.end_date);
+          const contextEl = document.getElementById("phase-context");
+          if (active) {
+            contextEl.innerHTML = `
+              <span class="badge badge-accent" style="margin-bottom: 6px; display: inline-flex;">${active.label}</span>
+              <p class="page-intro">This overlaps with a high-load period you marked.</p>
+            `;
+          } else {
+            contextEl.innerHTML = `<p class="page-intro">This pattern isn't explained by any high-load period you've marked.</p>`;
+          }
+        });
     }
 
+    fetch("/api/checkins")
+      .then((r) => r.json())
+      .then((data) => {
+        const entries = data.entries || [];
+        if (!entries.length) return;
+        const latest = entries[entries.length - 1];
+        const daysSince = (Date.now() - new Date(latest.created_at + "Z").getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSince <= 7) {
+          document.getElementById("checkin-status").textContent = "You're all set for this week.";
+          const btn = document.getElementById("checkin-btn");
+          if (btn) btn.remove();
+        }
+      });
+
     document.getElementById("insight-preview").innerHTML = MYAKU_DATA.insights.slice(0, 2).map(insightCardHTML).join("");
+
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const greetingEl = document.getElementById("greeting");
+        if (!greetingEl) return;
+        const firstName = data && data.user ? data.user.name.split(" ")[0] : "";
+        greetingEl.textContent = firstName ? `${getGreeting()}, ${firstName}` : getGreeting();
+      });
+
+    fetch(`/api/journal?date=${todayKey()}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.entry && data.entry.content) {
+          document.getElementById("journal-status").textContent = "You've already added today's journal entry.";
+          document.getElementById("journal-btn").textContent = "Edit Entry";
+        }
+      });
   }
 
   /* ---------------- Check-In ---------------- */
@@ -97,50 +154,67 @@
     const container = document.getElementById("domains-container");
     const selections = {};
 
-    container.innerHTML = MYAKU_DATA.domains
-      .map(
-        (d) => `
-        <div class="domain-block" data-domain="${d.id}">
-          <div class="domain-title">${d.title}</div>
-          <div class="domain-prompt">${d.prompt}</div>
-          <div class="scale">
-            ${[1, 2, 3, 4, 5]
-              .map((n) => `<div class="scale-option" data-value="${n}">${n}</div>`)
-              .join("")}
-          </div>
-          <div class="scale-labels">
-            <span>${MYAKU_DATA.scaleLabels[0]}</span>
-            <span>${MYAKU_DATA.scaleLabels[4]}</span>
-          </div>
-          <textarea class="note-input" placeholder="Add an optional note here."></textarea>
-        </div>
-      `
-      )
-      .join("");
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const role = data && data.user ? data.user.role : "student_athlete";
+        const domains = myakuDomainsForRole(role);
 
-    container.querySelectorAll(".domain-block").forEach((block) => {
-      const domainId = block.getAttribute("data-domain");
-      block.querySelectorAll(".scale-option").forEach((opt) => {
-        opt.addEventListener("click", () => {
-          block.querySelectorAll(".scale-option").forEach((o) => o.classList.remove("selected"));
-          opt.classList.add("selected");
-          selections[domainId] = opt.getAttribute("data-value");
+        container.innerHTML = domains
+          .map(
+            (d) => `
+            <div class="domain-block" data-domain="${d.id}">
+              <div class="domain-title">${d.title}</div>
+              <div class="domain-prompt">${d.prompt}</div>
+              <div class="scale">
+                ${[1, 2, 3, 4, 5]
+                  .map((n) => `<div class="scale-option" data-value="${n}">${n}</div>`)
+                  .join("")}
+              </div>
+              <div class="scale-labels">
+                <span>${MYAKU_DATA.scaleLabels[0]}</span>
+                <span>${MYAKU_DATA.scaleLabels[4]}</span>
+              </div>
+              <textarea class="note-input" placeholder="Add an optional note here."></textarea>
+            </div>
+          `
+          )
+          .join("");
+
+        container.querySelectorAll(".domain-block").forEach((block) => {
+          const domainId = block.getAttribute("data-domain");
+          block.querySelectorAll(".scale-option").forEach((opt) => {
+            opt.addEventListener("click", () => {
+              block.querySelectorAll(".scale-option").forEach((o) => o.classList.remove("selected"));
+              opt.classList.add("selected");
+              selections[domainId] = Number(opt.getAttribute("data-value"));
+            });
+          });
+        });
+
+        document.getElementById("submit-checkin").addEventListener("click", async () => {
+          const complete = domains.every((d) => selections[d.id]);
+          const errorEl = document.getElementById("checkin-error");
+          if (!complete) {
+            errorEl.style.display = "block";
+            return;
+          }
+          errorEl.style.display = "none";
+
+          await fetch("/api/checkins", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              trainingStress: selections.training,
+              academicStress: selections.academic,
+              personalStress: selections.personal,
+            }),
+          });
+
+          document.getElementById("checkin-form").style.display = "none";
+          document.getElementById("checkin-confirmation").style.display = "block";
         });
       });
-    });
-
-    document.getElementById("submit-checkin").addEventListener("click", () => {
-      const complete = MYAKU_DATA.domains.every((d) => selections[d.id]);
-      const errorEl = document.getElementById("checkin-error");
-      if (!complete) {
-        errorEl.style.display = "block";
-        return;
-      }
-      errorEl.style.display = "none";
-      localStorage.setItem("myakuCheckinDone", "true");
-      document.getElementById("checkin-form").style.display = "none";
-      document.getElementById("checkin-confirmation").style.display = "block";
-    });
   }
 
   /* ---------------- Trends ---------------- */
@@ -175,8 +249,50 @@
 
   /* ---------------- Insights ---------------- */
 
+  const LOG_TYPE_LABELS = { caffeine: "caffeine", hydration: "hydration", screen_time: "screen time" };
+
+  function computedInsightCardHTML(result, domainLabel) {
+    const strength = Math.abs(result.r) >= 0.6 ? "Strong Pattern" : "Moderate Pattern";
+    const direction = result.r > 0 ? "tend to move together" : "tend to move in opposite directions";
+    const finding = `Your ${LOG_TYPE_LABELS[result.logType]} logging and ${domainLabel.toLowerCase()} ratings ${direction}.`;
+    const support = `Based on ${result.n} weeks of your own logged data.`;
+    return `
+      <div class="card insight-card">
+        <div class="insight-top">
+          <div class="insight-finding">${finding}</div>
+          <span class="badge badge-accent"><span class="badge-dot"></span>${strength}</span>
+        </div>
+        <div class="insight-support">${support}</div>
+      </div>
+    `;
+  }
+
   function renderInsights() {
     document.getElementById("insights-list").innerHTML = MYAKU_DATA.insights.map(insightCardHTML).join("");
+
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((meData) => {
+        const role = meData && meData.user ? meData.user.role : "student_athlete";
+        const domains = myakuDomainsForRole(role);
+        const domainLabelByKey = {
+          training_stress: domains.find((d) => d.id === "training").title,
+          academic_stress: domains.find((d) => d.id === "academic").title,
+          personal_stress: domains.find((d) => d.id === "personal").title,
+        };
+
+        fetch("/api/insights/computed")
+          .then((r) => r.json())
+          .then((data) => {
+            const el = document.getElementById("computed-insights");
+            const results = data.results || [];
+            if (!results.length) {
+              el.innerHTML = `<p class="empty-note">Log a few weeks of check-ins and habits to see real patterns here.</p>`;
+              return;
+            }
+            el.innerHTML = results.map((r) => computedInsightCardHTML(r, domainLabelByKey[r.domain])).join("");
+          });
+      });
   }
 
   /* ---------------- Experiments ---------------- */
@@ -271,7 +387,10 @@
       .map(
         (entry) => `
         <div class="log-entry">
-          <div class="log-phase"><span class="badge badge-accent">${entry.phase}</span></div>
+          <div class="log-phase">
+            <span class="badge badge-accent">${entry.phase}</span>
+            <div class="log-date">${entry.date}</div>
+          </div>
           <div class="log-body">
             <div class="log-desc">${entry.desc}</div>
             <div class="skill-tags">

@@ -149,34 +149,70 @@ const MYAKU_DATA = {
 
   buildLog: [
     {
+      date: "8/8/2026",
       phase: "Concept",
       desc: "Reframed the product around burnout prevention instead of pure performance tracking.",
       skills: ["Product Thinking", "Problem Framing"],
     },
     {
+      date: "8/8/2026",
       phase: "Core Loop",
       desc: "Separated the daily readiness score from the burnout-risk trend so a single bad night never gets overweighted.",
       skills: ["Data Modeling", "UX Design"],
     },
     {
+      date: "8/8/2026",
       phase: "Mental Layer",
       desc: "Replaced a generic mood slider with structured, domain-specific check-ins for training, academics, and personal life.",
       skills: ["Survey Design", "Behavioral Data"],
     },
     {
+      date: "8/8/2026",
       phase: "Insights Engine",
       desc: "Combined physiological and psychological signals into one pattern engine instead of two separate dashboards.",
       skills: ["Systems Design", "Data Design"],
     },
     {
+      date: "8/8/2026",
       phase: "Safety Boundary",
       desc: "Made professional support resources persistent and visible instead of a one-time disclaimer, and treated that as a hard requirement.",
       skills: ["Ethical Design", "Trust & Safety"],
     },
     {
+      date: "8/8/2026",
       phase: "Self-Experiments",
       desc: "Extended the self-experiment feature to psychological variables, using the same hedged before-and-after readout as physical ones.",
       skills: ["Experiment Design", "Statistical Framing"],
+    },
+    {
+      date: "8/9/2026",
+      phase: "Accounts & Privacy",
+      desc: "Added real accounts, password hashing, and session-based sign-in backed by a SQLite database.",
+      skills: ["Backend Engineering", "Data Security"],
+    },
+    {
+      date: "8/9/2026",
+      phase: "Device Connections",
+      desc: "Wired a stubbed Whoop, Fitbit, and Apple Health connect flow into onboarding.",
+      skills: ["API Design", "Third-Party Integration"],
+    },
+    {
+      date: "8/9/2026",
+      phase: "Onboarding Calibration",
+      desc: "Added a calibration step at signup so burnout-risk readings start from a real baseline.",
+      skills: ["Onboarding Design", "Product Thinking"],
+    },
+    {
+      date: "8/9/2026",
+      phase: "Daily Habit Logs",
+      desc: "Added persistent Caffeine, Hydration, and Screen Time pages tied to sleep and HRV correlations.",
+      skills: ["Data Modeling", "UX Design"],
+    },
+    {
+      date: "8/9/2026",
+      phase: "Calendar Reminders",
+      desc: "Added a one-click export for a recurring weekly check-in reminder.",
+      skills: ["Feature Design"],
     },
   ],
 

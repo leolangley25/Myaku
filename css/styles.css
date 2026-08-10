@@ -1,26 +1,27 @@
 /* Myaku — design system
-   Minimal, calm, athletic. Warm off-white surfaces, one deep-teal accent,
-   risk colors used only for status, never for decoration. */
+   Minimal, warm off-white surfaces, one "pulse" rose accent used sparingly.
+   Risk colors are a separate semantic system (status only, never decoration)
+   and are kept visually distinct from the rose brand accent. */
 
 :root {
-  --bg: #f7f7f4;
+  --bg: #faf6f6;
   --surface: #ffffff;
-  --surface-alt: #f1f2ef;
-  --border: #e3e5e0;
-  --text: #1b1f1d;
-  --text-muted: #6b7570;
-  --text-faint: #9aa39d;
+  --surface-alt: #f6eef0;
+  --border: #ecdfe2;
+  --text: #221a1c;
+  --text-muted: #7a6a6d;
+  --text-faint: #ac989b;
 
-  --accent: #2f6f63;
-  --accent-strong: #24564d;
-  --accent-soft: #e4f0ec;
+  --accent: #c2536c;
+  --accent-strong: #9c3f54;
+  --accent-soft: #fbe7ea;
 
-  --risk-low: #3e8e6e;
-  --risk-low-soft: #e5f2ec;
+  --risk-low: #4c8768;
+  --risk-low-soft: #e6f1ea;
   --risk-moderate: #b8873a;
   --risk-moderate-soft: #f6ecd9;
-  --risk-elevated: #b25656;
-  --risk-elevated-soft: #f5e6e6;
+  --risk-elevated: #b15b44;
+  --risk-elevated-soft: #f5e7e1;
 
   --radius-sm: 8px;
   --radius: 14px;
@@ -583,6 +584,12 @@ button, input, textarea {
   width: 128px;
 }
 
+.log-date {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 8px;
+}
+
 .log-body {
   flex: 1;
   min-width: 0;
@@ -732,6 +739,39 @@ button, input, textarea {
   margin-top: 12px;
 }
 
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-option {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.role-option:hover {
+  border-color: var(--accent);
+}
+
+.role-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.role-option-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.role-option-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 /* ---------- Sidebar account block ---------- */
 
 .sidebar-account {
@@ -754,4 +794,100 @@ button, input, textarea {
 
 .sidebar-account-logout:hover {
   color: var(--text);
+}
+
+/* ---------- Log entry pages (caffeine / hydration / screen time) ---------- */
+
+.log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.log-item + .log-item {
+  margin-top: 10px;
+}
+
+.log-item-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.log-item-time {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-left: 8px;
+}
+
+.log-item-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.log-item-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.log-delete {
+  border: none;
+  background: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+}
+
+.log-delete:hover {
+  color: var(--risk-elevated);
+}
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.preset-chip:hover {
+  border-color: var(--accent);
+}
+
+.preset-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.preset-chip-amount {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.divider-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 22px 0 14px;
 }
