@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Log</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">Log</h1>
+      <p class="nav-sub">Everything that feeds a channel, and the one thing that does not.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-header">Channels</div>
+      <div class="group" id="channel-rows"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Utilities</div>
+      <div class="group" id="utility-rows"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Recent Sessions</div>
+      <div class="group" id="recent"></div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/log.js"></script>
+</body>
+</html>

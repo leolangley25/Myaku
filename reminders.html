@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Reminders</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">Reminders</h1>
+      <p class="nav-sub">Never for something you already did that day, and no streaks, on purpose.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-header">This Device</div>
+      <div class="card">
+        <div class="spread">
+          <label for="device-switch" class="row-main">
+            <span class="row-title">Notifications Here</span>
+            <span class="row-sub" id="device-sub">Checking.</span>
+          </label>
+          <span class="switch"><input type="checkbox" role="switch" id="device-switch" /><span class="knob" aria-hidden="true"></span></span>
+        </div>
+        <p class="status-line" id="device-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Schedule</div>
+      <div class="card">
+        <div class="spread">
+          <label for="enabled" class="row-main">
+            <span class="row-title">Send Reminders</span>
+            <span class="row-sub">To every device where notifications are on.</span>
+          </label>
+          <span class="switch"><input type="checkbox" role="switch" id="enabled" /><span class="knob" aria-hidden="true"></span></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Reaction Test</div>
+        <label class="field-label" for="pvt-time" style="margin-top:0;">Time</label>
+        <input class="field" id="pvt-time" type="time" />
+        <p class="field-label" id="pvt-days-label">Days</p>
+        <div class="day-picker" id="pvt-days" role="group" aria-labelledby="pvt-days-label"></div>
+        <p class="footnote secondary" style="margin-top:10px;">Three days a week at the same hour is the target, since alertness follows a daily rhythm.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Daily Check-In</div>
+        <label class="field-label" for="checkin-time" style="margin-top:0;">Time</label>
+        <input class="field" id="checkin-time" type="time" />
+      </div>
+
+      <div class="card">
+        <div class="card-title">Weekly Reflection</div>
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="weekly-day" style="margin-top:0;">Day</label>
+            <select class="field" id="weekly-day"></select>
+          </div>
+          <div>
+            <label class="field-label" for="weekly-time" style="margin-top:0;">Time</label>
+            <input class="field" id="weekly-time" type="time" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-filled btn-block" id="save" style="margin-top:16px;">Save Schedule</button>
+      <p class="status-line" id="save-status" style="text-align:center;" aria-live="polite"></p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Other Options</div>
+      <div class="card">
+        <button class="btn btn-tinted btn-block" id="test">Send A Test Notification</button>
+        <a class="btn btn-gray btn-block" href="/api/reminders/calendar.ics" style="margin-top:10px;">Add To My Calendar</a>
+        <p class="footnote secondary" style="margin-top:12px;">
+          The calendar option works on any phone, with no notification permission needed. Re-add it after changing the schedule.
+        </p>
+        <p class="footnote secondary" style="margin-top:8px;" id="tz-line"></p>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/reminders.js"></script>
+</body>
+</html>

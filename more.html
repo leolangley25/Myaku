@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — More</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">More</h1>
+      <p class="nav-sub" id="who"></p>
+    </header>
+
+    <section class="section">
+      <div class="section-header">Setup</div>
+      <div class="group" id="setup-rows"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Sensitivity</div>
+      <div class="group" id="sensitivity" role="radiogroup" aria-label="Sensitivity"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;" id="sens-note" aria-live="polite"></p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">High-Load Periods</div>
+      <div class="card">
+        <label class="field-label" for="phase-label" style="margin-top:0;">Name</label>
+        <input class="field" id="phase-label" placeholder="Finals Week" maxlength="60" />
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="phase-start">Starts</label>
+            <input class="field" id="phase-start" type="date" />
+          </div>
+          <div>
+            <label class="field-label" for="phase-end">Ends</label>
+            <input class="field" id="phase-end" type="date" />
+          </div>
+        </div>
+        <button class="btn btn-tinted btn-block" id="phase-add" style="margin-top:14px;">Mark A Period</button>
+        <p class="status-line" id="phase-status" aria-live="polite"></p>
+      </div>
+      <div class="group" id="phases" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Sharing</div>
+      <div class="card">
+        <p class="subhead secondary">A share link shows the name of your current pattern and nothing else. No channels, no journal, no numbers.</p>
+        <label class="field-label" for="share-label">Who It Is For</label>
+        <input class="field" id="share-label" placeholder="Coach Rivera" maxlength="60" />
+        <button class="btn btn-tinted btn-block" id="share-add" style="margin-top:14px;">Create Link</button>
+      </div>
+      <div class="group" id="shares" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Your Account</div>
+      <div class="card">
+        <p class="body">Everything Myaku holds about you, in one file you can keep.</p>
+        <a class="btn btn-tinted btn-block" href="/api/account/export" style="margin-top:14px;">Download My Data</a>
+      </div>
+      <div class="card">
+        <p class="body">Deleting your account removes every check-in, test, journal entry, and connection. It cannot be undone.</p>
+        <label class="field-label" for="delete-password">Confirm With Your Password</label>
+        <input class="field" id="delete-password" type="password" autocomplete="current-password" />
+        <button class="btn btn-danger btn-block" id="delete-account" style="margin-top:14px;">Delete My Account</button>
+        <p class="status-line" id="delete-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Support</div>
+      <div class="group">
+        <a class="row" href="tel:988" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Crisis Support</span>
+            <span class="row-sub">Call or text 988 to reach the Suicide and Crisis Lifeline, available at any hour.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Campus Sports Psychology</span>
+            <span class="row-sub">Confidential support for performance and mental health.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Counseling Services</span>
+            <span class="row-sub">Free and confidential for enrolled students.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Myaku describes patterns in your data. It does not diagnose anything and it does not replace professional care.
+      </p>
+    </section>
+
+    <section class="section">
+      <button class="btn btn-gray btn-block" id="logout">Sign Out</button>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/more.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Screen Time</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="screentime" data-log-type="screen_time">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Screen Time</div>
+        <h1>Screen Time</h1>
+        <p class="page-intro">Log evening screen use to see how it affects your sleep score.</p>
+      </div>
+
+      <div id="log-insight"></div>
+
+      <div class="grid-2" style="margin-top: 16px;">
+        <div id="log-form-container"></div>
+        <div>
+          <div class="section-title">Today's Entries</div>
+          <div id="log-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/escape.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/logConfig.js"></script>
+  <script src="js/logpage.js"></script>
+</body>
+</html>

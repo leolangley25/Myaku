@@ -2,45 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Trends</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body data-page="trends">
-  <div class="app-shell">
-    <div id="nav-root"></div>
-    <main class="main">
-      <div class="page-header">
-        <div class="page-eyebrow">Trends</div>
-        <h1>Burnout Risk Trend</h1>
-        <p class="page-intro">This tracks how your physical and mental signals move together over time.</p>
-      </div>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">Trends</h1>
+      <p class="nav-sub" id="sub">Loading your history.</p>
+    </header>
 
+    <section class="section" style="margin-top:18px;">
+      <div class="segmented" id="tabs"></div>
+    </section>
+
+    <div id="view"></div>
+
+    <section class="section">
       <div class="card">
-        <div class="chart-wrap" id="trend-chart" style="height: 240px;"></div>
-        <div class="chart-legend" id="trend-legend"></div>
-        <p class="page-intro" style="margin-top: 18px;">A rising trend means strain is compounding, not that burnout is certain.</p>
+        <div class="card-title">What The Labels Mean</div>
+        <div class="hstack" style="align-items:flex-start;gap:12px;margin-bottom:12px;">
+          <span class="badge badge-describe">Description</span>
+          <span class="footnote secondary" style="flex:1;">What happened. No claim about why, so nothing here can be wrong about causes.</span>
+        </div>
+        <div class="hstack" style="align-items:flex-start;gap:12px;margin-bottom:12px;">
+          <span class="badge badge-explore">Exploratory</span>
+          <span class="footnote secondary" style="flex:1;">A search across many possibilities. Something always wins, including in pure noise. A place to look, not a result.</span>
+        </div>
+        <div class="hstack" style="align-items:flex-start;gap:12px;">
+          <span class="badge badge-test">Pre-Registered Test</span>
+          <span class="footnote secondary" style="flex:1;">One question written down before any data existed. Exactly one card in this app carries this label.</span>
+        </div>
       </div>
+      <p class="footnote secondary" style="margin-top:12px;padding:0 4px;">
+        Everything on this page describes your own history against itself. None of it is a diagnosis,
+        and none of it compares you to anybody else.
+      </p>
+      <a class="btn btn-gray btn-block" href="method.html" style="margin-top:14px;">How Myaku Works</a>
+    </section>
 
-      <div class="card-row" style="margin-top: 16px;">
-        <div class="card">
-          <div class="card-label">Physiological Signal</div>
-          <div id="physio-badge"></div>
-          <p class="page-intro" style="margin-top: 10px;">Your physiological signal has declined steadily over the last three weeks.</p>
-        </div>
-        <div class="card">
-          <div class="card-label">Psychological Signal</div>
-          <div id="psych-badge"></div>
-          <p class="page-intro" style="margin-top: 10px;">Your psychological strain has increased steadily over the same period.</p>
-        </div>
-      </div>
-    </main>
+    <div style="height:24px;"></div>
   </div>
 
-  <script src="js/data.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
   <script src="js/charts.js"></script>
-  <script src="js/nav.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/trends.js"></script>
 </body>
 </html>

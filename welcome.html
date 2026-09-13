@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Welcome</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body style="padding-bottom:0;">
+  <div class="screen" style="max-width:520px;">
+    <header class="nav-large" style="padding-top:6vh;">
+      <div class="steps" id="steps" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="eyebrow" id="step-count">Step One Of Five</div>
+    </header>
+
+    <!-- 1. What this is -->
+    <div class="step" data-step="0">
+      <h1 class="large-title">Welcome To Myaku</h1>
+      <p class="nav-sub">Most apps only look at your body. Burnout starts in more places than that.</p>
+      <section class="section">
+        <div class="card">
+          <div class="intro-item">
+            <span class="intro-dot" style="background:var(--ch-auto)" aria-hidden="true"></span>
+            <span><strong>Body.</strong> <span class="secondary">Sleep, heart rate variability, and resting heart rate from a wearable.</span></span>
+          </div>
+          <div class="intro-item">
+            <span class="intro-dot" style="background:var(--ch-cog)" aria-hidden="true"></span>
+            <span><strong>Brain.</strong> <span class="secondary">A three-minute reaction test, the part of fatigue a wearable cannot see.</span></span>
+          </div>
+          <div class="intro-item">
+            <span class="intro-dot" style="background:var(--ch-psy)" aria-hidden="true"></span>
+            <span><strong>Life.</strong> <span class="secondary">A short check-in about how your days are actually landing.</span></span>
+          </div>
+        </div>
+        <p class="body" style="margin-top:18px;">
+          Myaku watches for the moments these three disagree, like a recovered body with a strained head. Those are the
+          patterns a single score hides.
+        </p>
+      </section>
+    </div>
+
+    <!-- 2. Privacy -->
+    <div class="step" data-step="1" hidden>
+      <h1 class="large-title">Yours, Not Your Coach's</h1>
+      <p class="nav-sub">Myaku is built for you, and it stays that way.</p>
+      <section class="section">
+        <div class="group">
+          <div class="row" style="align-items:flex-start;"><span class="row-main">
+            <span class="row-title">Private By Default</span>
+            <span class="row-sub">Nothing is shared unless you create a link, and a link shows one word, never your numbers.</span>
+          </span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main">
+            <span class="row-title">Journal Stays Unread</span>
+            <span class="row-sub">No mood is ever inferred from what you write. Only a rating you choose counts.</span>
+          </span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main">
+            <span class="row-title">Leave Whenever You Want</span>
+            <span class="row-sub">Download everything, or delete your account and every row with it, from More.</span>
+          </span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main">
+            <span class="row-title">Not A Diagnosis</span>
+            <span class="row-sub">Myaku describes patterns in your own data. It does not replace a trainer, a doctor, or a counsellor.</span>
+          </span></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 3. Body data -->
+    <div class="step" data-step="2" hidden>
+      <h1 class="large-title">Connect Body Data</h1>
+      <p class="nav-sub">Connecting brings in your past months too, so your Body channel does not start from zero.</p>
+      <section class="section">
+        <div id="connect-banner"></div>
+        <div class="option-list" id="connect-options" style="margin-top:12px;"></div>
+        <p class="footnote secondary" style="margin-top:14px;padding:0 4px;">
+          No wearable is fine. You can import from Apple Health or enter nights by hand later, from More.
+        </p>
+      </section>
+    </div>
+
+    <!-- 4. Reminders -->
+    <div class="step" data-step="3" hidden>
+      <h1 class="large-title">Reminders That Respect You</h1>
+      <p class="nav-sub">Consistency is what makes a real change stand out, and memory is unreliable.</p>
+      <section class="section">
+        <div class="card">
+          <p class="body">A nudge for the reaction test on training mornings, and one for the check-in in the evening.</p>
+          <p class="footnote secondary" style="margin-top:10px;">
+            Reminders never fire for something you already did that day. There are no streaks, on purpose.
+          </p>
+          <button class="btn btn-filled btn-block" id="push-on" style="margin-top:18px;">Turn On Reminders</button>
+          <a class="btn btn-gray btn-block" href="/api/reminders/calendar.ics" id="calendar-link" style="margin-top:10px;">Use My Calendar Instead</a>
+          <p class="status-line" id="push-status" aria-live="polite"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 5. Calibration -->
+    <div class="step" data-step="4" hidden>
+      <h1 class="large-title">A Little About You</h1>
+      <p class="nav-sub">This gives the Life channel a reference point from today, rather than a month from now.</p>
+      <section class="section">
+        <div class="card">
+          <label class="field-label" for="sport" style="margin-top:0;">Sport</label>
+          <input class="field" id="sport" placeholder="Soccer" autocomplete="off" />
+          <label class="field-label" for="training-days">Training Days Per Week</label>
+          <input class="field" id="training-days" type="number" inputmode="numeric" min="0" max="7" placeholder="5" />
+          <label class="field-label" for="bedtime">Typical Bedtime</label>
+          <input class="field" id="bedtime" type="time" />
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-header">Usual Levels</div>
+        <div id="baselines"></div>
+      </section>
+    </div>
+
+    <!-- 6. First step -->
+    <div class="step" data-step="5" hidden>
+      <h1 class="large-title">You Are Set Up</h1>
+      <p class="nav-sub">Pick one thing to start with. Each channel begins its own clock the first time you use it.</p>
+      <section class="section">
+        <div class="option-list">
+          <a class="option" href="pvt.html">
+            <span class="intro-dot" style="background:var(--ch-cog)" aria-hidden="true"></span>
+            <span class="row-main"><span class="row-title">Take The Reaction Test</span><span class="row-sub">Three minutes. Best at the hour you would usually take it.</span></span>
+            <span class="chevron" aria-hidden="true"></span>
+          </a>
+          <a class="option" href="checkin.html">
+            <span class="intro-dot" style="background:var(--ch-psy)" aria-hidden="true"></span>
+            <span class="row-main"><span class="row-title">Do Your First Check-In</span><span class="row-sub">Under a minute, and only the first square is required.</span></span>
+            <span class="chevron" aria-hidden="true"></span>
+          </a>
+          <a class="option" href="index.html">
+            <span class="intro-dot" style="background:var(--primary)" aria-hidden="true"></span>
+            <span class="row-main"><span class="row-title">Go To Today</span><span class="row-sub">See your readings and what unlocks when.</span></span>
+            <span class="chevron" aria-hidden="true"></span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <section class="section" id="nav-buttons">
+      <button class="btn btn-filled btn-block" id="next">Continue</button>
+      <div class="grid-2" style="margin-top:10px;">
+        <button class="btn btn-gray" id="back">Back</button>
+        <button class="btn btn-gray" id="skip">Skip This Step</button>
+      </div>
+    </section>
+
+    <div style="height:32px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/welcome.js"></script>
+</body>
+</html>

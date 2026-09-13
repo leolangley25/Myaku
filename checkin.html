@@ -2,39 +2,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Myaku — Weekly Check-In</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Daily Check-In</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body data-page="checkin">
-  <div class="app-shell">
-    <div id="nav-root"></div>
-    <main class="main">
-      <div class="page-header">
-        <div class="page-eyebrow">Check-In</div>
-        <h1>Weekly Check-In</h1>
-        <p class="page-intro">Rate how each part of your week actually felt.</p>
-      </div>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow" id="date-line">Today</div>
+      <h1 class="large-title">Check-In</h1>
+      <p class="nav-sub" id="mode-sub">Three squares and two rows. Each square carries two answers, so this stays under a minute.</p>
+    </header>
 
-      <div class="card" id="checkin-form">
-        <div id="domains-container"></div>
-        <button class="btn btn-primary btn-block" id="submit-checkin" style="margin-top: 6px;">Submit Check-In</button>
-        <p class="empty-note" id="checkin-error" style="display: none; margin-top: 10px;">Please answer all three before submitting.</p>
+    <section class="section" style="margin-top:12px;">
+      <div class="segmented" id="day-toggle" role="group" aria-label="Which Day">
+        <button type="button" data-day="0" aria-pressed="true">Today</button>
+        <button type="button" data-day="-1" aria-pressed="false">Yesterday</button>
       </div>
+      <div class="segmented" id="mode-toggle" role="group" aria-label="Check-In Length" style="margin-top:10px;">
+        <button type="button" data-mode="full" aria-pressed="true">Full</button>
+        <button type="button" data-mode="quick" aria-pressed="false">Quick</button>
+      </div>
+      <p class="footnote secondary" id="progress-line" style="margin-top:12px;padding:0 4px;" aria-live="polite"></p>
+    </section>
 
-      <div class="card" id="checkin-confirmation" style="display: none; text-align: center;">
-        <div class="experiment-title" style="margin-bottom: 6px;">Check-In Complete</div>
-        <p class="page-intro" style="margin: 0 auto;">Your reflection has been added to this week's data.</p>
-        <a href="index.html" class="btn btn-secondary" style="margin-top: 18px;">Back To Dashboard</a>
+    <section class="section">
+      <div class="section-header">The Day Itself</div>
+      <div class="card">
+        <div class="card-title">Demand And Your Say</div>
+        <div id="pad-load"></div>
+        <p class="footnote secondary pad-read" id="read-load" aria-live="polite">Tap anywhere on the square.</p>
+        <p class="footnote secondary" style="margin-top:12px;">
+          A heavy day you chose is a different day from a heavy day that chose you.
+        </p>
       </div>
-    </main>
+    </section>
+
+    <section class="section" data-full-only>
+      <div class="section-header">Body And Head</div>
+      <div class="card">
+        <div class="card-title">How Recovered, How Sharp</div>
+        <div id="pad-state"></div>
+        <p class="footnote secondary pad-read" id="read-state" aria-live="polite">Tap anywhere on the square.</p>
+        <p class="footnote secondary" style="margin-top:12px;">
+          Rate how sharp you felt, not how sharp you tested. The point is whether the two agree.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" data-full-only>
+      <div class="section-header">Right Now</div>
+      <div class="card">
+        <div id="pad-affect"></div>
+        <p class="footnote secondary pad-read" id="read-affect" aria-live="polite">Tap anywhere on the square.</p>
+      </div>
+    </section>
+
+    <section class="section" data-full-only>
+      <div class="section-header">Two Quick Rows</div>
+      <div class="card">
+        <div class="card-title" id="sleep-quality-label">How Last Night Felt</div>
+        <div id="sleep-quality"></div>
+        <div class="scale-ends" aria-hidden="true"><span>Awful</span><span>Perfect</span></div>
+        <p class="footnote secondary" style="margin-top:10px;">
+          Kept apart from what your wearable recorded, so the two can be compared.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">Wanting To Be There</div>
+        <div id="motivation"></div>
+        <div class="scale-ends" aria-hidden="true"><span>None</span><span>All In</span></div>
+        <p class="footnote secondary" style="margin-top:10px;">
+          Losing interest is its own signal, and it can show up while everything else still looks fine.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" data-full-only>
+      <div class="section-header">What Drove It</div>
+      <div class="card">
+        <div class="chips" id="attribution" role="group" aria-label="What Drove It"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <button class="btn btn-filled btn-block" id="save">Save Check-In</button>
+      <p class="footnote secondary" style="margin-top:10px;text-align:center;" id="status" aria-live="polite"></p>
+    </section>
+
+    <div style="height:24px;"></div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/roleConfig.js"></script>
-  <script src="js/nav.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/checkin.js"></script>
 </body>
 </html>

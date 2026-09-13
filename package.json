@@ -1,14 +1,25 @@
 {
   "name": "myaku",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Myaku — a private, athlete-owned burnout-prevention prototype.",
   "main": "server/index.js",
+  "engines": {
+    "node": ">=22.5"
+  },
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.js",
+    "check:copy": "python scripts/check-copy.py",
+    "seed": "node scripts/seed-demo.js",
+    "icons": "node scripts/make-icons.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "express-session": "^1.18.0"
+    "express": "^4.22.2",
+    "express-session": "^1.19.0",
+    "web-push": "^3.6.7"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   }
 }

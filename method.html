@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — How It Works</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Method</div>
+      <h1 class="large-title">How Myaku Works</h1>
+      <p class="nav-sub">Everything behind the readings, in plain language, including what it cannot do.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-header">Three Channels</div>
+      <div class="card" id="channels"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">What Normal Means</div>
+      <div class="card prose">
+        <p>Every reading is compared against your own history, never against other people. Your normal is the middle of your recent weeks, and the spread around it is measured in a way that one strange night cannot distort.</p>
+        <p>A channel needs three earlier weeks before this week can be compared against them. That is why nothing is named during your first few weeks, even though your raw readings show from the first day.</p>
+        <p>A very consistent athlete has a small spread, and against a small spread any wobble can look dramatic. Myaku puts a floor under the spread so that being reliable is never mistaken for being unwell.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">When A Pattern Appears</div>
+      <div class="card prose">
+        <p>A channel only counts as strained when it stays above the bar for more than one week in a row, because a single bad week is what ordinary life looks like.</p>
+        <p>Sensitivity changes how far a channel has to move, and for how long, before a pattern is named. You can change it in More.</p>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr><th scope="col">Setting</th><th scope="col">Notable Move</th><th scope="col">Marked Move</th><th scope="col">Gap Needed</th><th scope="col">Weeks Held</th></tr>
+            </thead>
+            <tbody id="levels"></tbody>
+          </table>
+        </div>
+        <p class="footnote secondary" style="margin-top:12px;">
+          Moves are measured in spreads of your own history, so a move of one means one typical spread away from your normal.
+          Your current setting is highlighted.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">The Seven Patterns</div>
+      <div class="group" id="states"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Reading The Gaps</div>
+      <div class="card prose">
+        <p>A gap compares two channels against each other instead of against your normal. When they agree there is nothing to report, and when they pull apart the direction of the gap says which one is ahead.</p>
+        <p>A gap carries the noise of both channels at once, so it has to move further than either channel alone before it counts.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">What It Cannot Do</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Not A Diagnosis</span>
+          <span class="row-sub">Myaku describes patterns in your own data. It cannot tell you that you have burnout, depression, or anything else.</span>
+        </span></div>
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Chosen Thresholds</span>
+          <span class="row-sub">The cutoffs above are reasoned choices, not values proven in a study, and they have not yet been checked against real outcomes.</span>
+        </span></div>
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Short Burnout Questions</span>
+          <span class="row-sub">Each burnout question is one item from a longer published questionnaire, so it tracks your trend rather than giving a validated score.</span>
+        </span></div>
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Patterns Are Not Causes</span>
+          <span class="row-sub">A busy week can drive two things at once without either one causing the other, so no relationship shown here proves a cause.</span>
+        </span></div>
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Devices Measure Differently</span>
+          <span class="row-sub">Apple Watch measures heart rate variability differently from Whoop and Fitbit, so switching devices can look like a change in you.</span>
+        </span></div>
+        <div class="row" style="align-items:flex-start;"><span class="row-main">
+          <span class="row-title">Early Tests Improve</span>
+          <span class="row-sub">Reaction time often gets faster over the first few sessions as you learn the task, so your first weeks can look better than they are.</span>
+        </span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Privacy</div>
+      <div class="card prose">
+        <p>Your data is not shared with anyone unless you create a share link, and a share link shows only the name of your current pattern.</p>
+        <p>Journal text is stored and never analysed. Connection tokens for your wearable are encrypted before they are stored. You can download everything or delete your account at any time from More.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="support-card">
+        <p class="title-3">Need Help Now</p>
+        <p class="body" style="margin-top:8px;">Call or text <a href="tel:988">988</a> to reach the Suicide and Crisis Lifeline, available at any hour.</p>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/method.js"></script>
+</body>
+</html>

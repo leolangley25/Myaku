@@ -2,60 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Caffeine</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body data-page="caffeine" data-log-type="caffeine">
-  <div class="app-shell">
-    <div id="nav-root"></div>
-    <main class="main">
-      <div class="page-header">
-        <div class="page-eyebrow">Caffeine</div>
-        <h1>Caffeine</h1>
-        <p class="page-intro">Log what you drink and when it happens.</p>
-      </div>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">Caffeine</h1>
+      <p class="nav-sub">How much is still in you, and when it clears before bed.</p>
+    </header>
 
-      <div id="log-insight"></div>
-
-      <div class="card-row" style="margin-top: 16px;">
-        <div class="card">
-          <div class="card-label">Today's Total</div>
-          <div class="score-display">
-            <span class="score-number" id="caffeine-total-number">0</span>
-            <span class="score-denom">mg</span>
+    <section class="section">
+      <div class="card">
+        <div class="spread" style="align-items:flex-start;">
+          <div>
+            <div class="card-title">In Your System Now</div>
+            <div class="stat"><span class="stat-value" id="now-mg">0</span><span class="stat-unit">mg</span></div>
           </div>
-          <div id="caffeine-total-badge" style="margin-top: 10px;"></div>
+          <div style="text-align:right;">
+            <div class="card-title">Today's Total</div>
+            <div class="stat" style="justify-content:flex-end;"><span class="stat-value" id="total-mg">0</span><span class="stat-unit">mg</span></div>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-label">Quick Add</div>
-          <div class="preset-row" id="caffeine-presets"></div>
-        </div>
+        <div id="decay" style="height:150px;margin-top:16px;"></div>
+        <p class="footnote secondary" style="margin-top:10px;" id="bed-note"></p>
       </div>
+    </section>
 
-      <div class="card" style="margin-top: 16px;">
-        <div class="card-label">Caffeine In Your System</div>
-        <div class="chart-wrap" id="caffeine-decay-chart" style="height: 200px; margin-top: 8px;"></div>
-        <p class="empty-note" id="caffeine-decay-caption" style="margin-top: 12px;"></p>
+    <section class="section">
+      <div class="section-header">Quick Add</div>
+      <div class="card">
+        <div class="chips" id="presets"></div>
       </div>
+    </section>
 
-      <div class="divider-label">Or Log Something Else</div>
-
-      <div class="grid-2">
-        <div id="log-form-container"></div>
-        <div>
-          <div class="section-title">Today's Entries</div>
-          <div id="log-list"></div>
-        </div>
+    <section class="section">
+      <div class="section-header">Something Else</div>
+      <div class="card">
+        <label class="field-label" for="custom-label" style="margin-top:0;">Name</label>
+        <input class="field" id="custom-label" placeholder="Cold Brew" style="background:var(--fill-2);" />
+        <label class="field-label" for="custom-mg">Milligrams</label>
+        <input class="field" id="custom-mg" type="number" inputmode="numeric" placeholder="120" style="background:var(--fill-2);" />
+        <button class="btn btn-tinted btn-block" id="custom-add" style="margin-top:16px;">Add</button>
       </div>
-    </main>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Today</div>
+      <div class="group" id="entries"></div>
+    </section>
+
+    <section class="section" id="signin-prompt" hidden>
+      <div class="card">
+        <p class="callout">This page works without an account, though nothing is saved until you sign in.</p>
+        <a class="btn btn-filled btn-block" href="login.html" style="margin-top:14px;">Sign In</a>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
   </div>
 
-  <script src="js/charts.js"></script>
-  <script src="js/nav.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/logConfig.js"></script>
-  <script src="js/logpage.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
   <script src="js/caffeine.js"></script>
 </body>
 </html>

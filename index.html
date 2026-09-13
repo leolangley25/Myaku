@@ -2,71 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Myaku — Dashboard</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Today</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body data-page="dashboard">
-  <div class="app-shell">
-    <div id="nav-root"></div>
-    <main class="main">
-      <div class="page-header">
-        <div class="page-eyebrow" id="today-date">Today</div>
-        <h1 id="greeting">Good Morning</h1>
-        <p class="page-intro">Here's where things stand today.</p>
-      </div>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow" id="date-line">Today</div>
+      <h1 class="large-title" id="greeting">Today</h1>
+    </header>
 
-      <div class="card" id="journal-cta" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-        <div>
-          <div class="experiment-title" style="margin-bottom: 4px;">Journal Entry</div>
-          <p class="page-intro" id="journal-status">You haven't written today's journal entry yet.</p>
-        </div>
-        <a href="journal.html" class="btn btn-primary" id="journal-btn" style="flex-shrink: 0;">Write Entry</a>
+    <section class="section" style="margin-top:14px;">
+      <div class="card card-hero" aria-live="polite">
+        <div class="card-title">Where You Are</div>
+        <div id="state-line">Loading your channels.</div>
       </div>
+    </section>
 
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-label">Readiness Score</div>
-          <div class="score-display">
-            <span class="score-number" id="readiness-number">—</span>
-            <span class="score-denom">/ 100</span>
+    <section class="section" id="support-section" hidden>
+      <div class="support-card">
+        <p class="title-3">Worth Talking To Someone</p>
+        <p class="body" style="margin-top:8px;">
+          This pattern has held long enough that a person is more useful than an app. Your athletic trainer,
+          a sports psychologist, or campus counselling are all good first steps.
+        </p>
+        <p class="body" style="margin-top:10px;">
+          If you are in crisis, call or text <a href="tel:988">988</a> to reach the Suicide and Crisis Lifeline.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="checklist-section" hidden>
+      <div class="section-header">Getting Started</div>
+      <div class="card">
+        <p class="footnote secondary" id="checklist-count"></p>
+        <div id="checklist" style="margin-top:4px;"></div>
+      </div>
+    </section>
+
+    <section class="section" id="signals-section">
+      <div class="section-header">Last Night</div>
+      <div class="card">
+        <div class="readings" id="readings"><p class="empty" style="padding:4px;">Loading your body data.</p></div>
+        <p class="footnote secondary" style="margin-top:14px;" id="signals-note"></p>
+      </div>
+    </section>
+
+    <section class="section" id="channels-section">
+      <div class="section-header">Your Three Channels</div>
+      <div class="card">
+        <div class="rings" id="rings"></div>
+        <p class="footnote secondary" id="rings-note" style="margin-top:16px;"></p>
+        <div id="channel-lines" style="margin-top:18px;"></div>
+      </div>
+    </section>
+
+    <section class="section" id="readings-section" hidden>
+      <div class="section-header">Where Your Channels Disagree</div>
+      <div class="group" id="readings-list"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        A disagreement between two channels is the one thing a single-channel app cannot show you.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Today</div>
+      <div class="group" id="actions"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Caffeine</div>
+      <div class="card">
+        <div class="spread">
+          <div>
+            <div class="stat"><span class="stat-value" id="caf-total">0</span><span class="stat-unit">mg</span></div>
+            <p class="footnote secondary" style="margin-top:4px;">Logged so far today.</p>
           </div>
-          <div id="readiness-badge" style="margin-top: 10px;"></div>
-          <p class="page-intro" style="margin-top: 12px;">Built from last night's sleep, HRV, and resting heart rate.</p>
-          <div id="readiness-sparkline" style="height: 56px; margin-top: 18px;"></div>
-          <div id="readiness-breakdown" style="margin-top: 4px;"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-label">Burnout Risk</div>
-          <div id="burnout-badge"></div>
-          <p class="page-intro" style="margin-top: 10px;" id="burnout-summary"></p>
-          <div id="burnout-sparkline" style="height: 56px; margin-top: 18px;"></div>
-          <div id="phase-context" style="margin-top: 10px;"></div>
-          <a href="trends.html" class="muted-link" style="display: inline-block; margin-top: 16px;">View Full Trend</a>
+          <a class="btn btn-tinted" href="caffeine.html">Log A Drink</a>
         </div>
       </div>
+    </section>
 
-      <div class="card" id="checkin-cta" style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-        <div>
-          <div class="experiment-title" style="margin-bottom: 4px;">Weekly Check-In</div>
-          <p class="page-intro" id="checkin-status">Your weekly check-in is ready.</p>
-        </div>
-        <a href="checkin.html" class="btn btn-primary" id="checkin-btn" style="flex-shrink: 0;">Start Check-In</a>
+    <section class="section" id="phase-section" hidden>
+      <div class="section-header">Context</div>
+      <div class="card">
+        <div id="phase-pill"></div>
+        <p class="subhead secondary" style="margin-top:8px;" id="phase-note"></p>
       </div>
+    </section>
 
-      <div class="section-block">
-        <div class="section-title">Insights</div>
-        <div id="insight-preview"></div>
-        <a href="insights.html" class="muted-link">View All Insights</a>
-      </div>
-    </main>
+    <div style="height:24px;"></div>
   </div>
 
-  <script src="js/data.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
   <script src="js/charts.js"></script>
-  <script src="js/nav.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/today.js"></script>
 </body>
 </html>

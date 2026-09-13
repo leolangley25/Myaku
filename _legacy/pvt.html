@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Myaku — Vigilance Test</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="pvt">
+
+  <!-- Full-screen task surface. Sits above everything while a session runs. -->
+  <div id="task-surface" class="task-surface" hidden>
+    <div class="task-inner">
+      <div class="task-hint" id="task-hint">Wait For The Counter</div>
+      <div class="task-stimulus" id="task-stimulus">000</div>
+      <div class="task-feedback" id="task-feedback"></div>
+    </div>
+    <div class="task-progress"><div class="task-progress-bar" id="task-progress-bar"></div></div>
+  </div>
+
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+
+      <div class="page-header">
+        <div class="page-eyebrow">Cognitive</div>
+        <h1>Vigilance Test</h1>
+        <p class="page-intro">This measures reaction time, which is the part of fatigue a wearable cannot see.</p>
+      </div>
+
+      <!-- Intro -->
+      <div id="intro-panel">
+        <div class="card">
+          <div class="card-label">How It Works</div>
+          <ul class="plain-list">
+            <li>A counter appears at random intervals, and you tap the screen the instant you see it.</li>
+            <li>The whole session runs for three minutes and takes no preparation.</li>
+            <li>Tapping before the counter appears is recorded as a false start.</li>
+            <li>Run it at the same time of day every time, because alertness follows a daily rhythm.</li>
+          </ul>
+          <button class="btn btn-primary" id="start-btn" style="margin-top: 18px;">Start Test</button>
+          <button class="btn btn-secondary" id="short-btn" style="margin-top: 18px; margin-left: 8px;">Run 60 Seconds</button>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-label">Timing Environment</div>
+          <p class="empty-note" style="margin-bottom: 12px;">Measured on this device before the test, because the result is only trustworthy if the platform noise is small.</p>
+          <div id="env-readout"></div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="results-panel" hidden>
+        <div class="card-row">
+          <div class="card">
+            <div class="card-label">Mean Reaction Time</div>
+            <div class="score-display">
+              <span class="score-number" id="res-mean">—</span>
+              <span class="score-denom">ms</span>
+            </div>
+            <div id="res-badge" style="margin-top: 10px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Lapses</div>
+            <div class="score-display">
+              <span class="score-number" id="res-lapses">—</span>
+            </div>
+            <p class="empty-note" style="margin-top: 10px;">A lapse is any response slower than 355 milliseconds.</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-label">Session Detail</div>
+          <div id="res-detail"></div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-label">Reaction Time Distribution</div>
+          <div class="chart-wrap" id="res-chart" style="height: 180px; margin-top: 10px;"></div>
+          <p class="empty-note" id="res-chart-note" style="margin-top: 10px;"></p>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-label">Can This Detect Sleep Loss</div>
+          <div id="res-power"></div>
+        </div>
+
+        <button class="btn btn-primary" id="again-btn" style="margin-top: 18px;">Run It Again</button>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/escape.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/pvt.js"></script>
+</body>
+</html>

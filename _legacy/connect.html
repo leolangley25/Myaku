@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Connect Your Data</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="devices">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Connect</div>
+        <h1>Connect Your Data</h1>
+        <p class="page-intro">Link a wearable or health platform to power your readiness score.</p>
+        <p class="empty-note" style="margin-top: 8px;">These connections are simulated for this prototype and don't pull real data yet.</p>
+      </div>
+
+      <div id="providers-list"></div>
+
+      <div class="section-title">API Access</div>
+      <p class="page-intro" style="margin-bottom: 14px;">Generate a personal access token so another app you own, like Hada, can read your check-ins and logs to correlate them with its own data. Nothing is shared until you create one, and you can revoke access anytime.</p>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div id="token-list"></div>
+        <p class="empty-note" id="token-empty" style="display: none;">No active tokens yet.</p>
+        <div class="form-error" id="token-new-banner" style="display: none; background: var(--risk-low-soft); color: var(--risk-low); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 12px; word-break: break-all;"></div>
+        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <input type="text" id="token-label" class="field-input" placeholder="Ex. Hada" style="max-width: 220px;" />
+          <button class="btn btn-primary" id="create-token-btn">Generate Token</button>
+        </div>
+      </div>
+
+      <a href="index.html" class="btn btn-primary" id="continue-btn" style="margin-top: 8px;">Continue To Dashboard</a>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/escape.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/connect.js"></script>
+</body>
+</html>

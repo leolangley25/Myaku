@@ -1,57 +1,42 @@
-/* Myaku — public read-only view for a share link. Redacted summary only:
-   no journal content, no raw domain numbers, no habit logs. */
+/* Myaku — the page a coach sees through a share link.
+ *
+ * Public and deliberately thin: a named state and nothing else. No raw channels,
+ * no journal, no numbers. Moved out of an inline script so the content security
+ * policy can refuse inline scripts everywhere.
+ */
 
 (function () {
-  const token = new URLSearchParams(window.location.search).get("token");
-  const card = document.getElementById("share-view-card");
+  const token = new URLSearchParams(location.search).get("token");
+  const view = document.getElementById("view");
 
-  function badgeHTML(level, label) {
-    const cls = { low: "badge-low", moderate: "badge-moderate", elevated: "badge-elevated" }[level] || "badge-neutral";
-    return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
+  function fail(msg) {
+    view.innerHTML = `<h1 class="large-title">Link Not Available</h1>
+      <p class="nav-sub">${M.esc(msg)}</p>`;
   }
 
-  function render(data) {
-    const levelLabel = { low: "Low", moderate: "Moderate", elevated: "Elevated" }[data.level] || "No Data Yet";
-    card.innerHTML = `
-      <div class="auth-brand">Myaku</div>
-      <h1>${data.name}</h1>
-      <p class="page-intro" style="margin-bottom: 18px;">A redacted summary shared with you.</p>
+  if (!token) return fail("This link is invalid or has been removed.");
 
-      <div class="card">
-        <div class="card-label">Current Status</div>
-        ${data.hasCheckin ? badgeHTML(data.level, levelLabel) : `<span class="badge badge-neutral"><span class="badge-dot"></span>No Data Yet</span>`}
-        <div class="metric-row" style="margin-top: 14px;">
-          <span class="metric-name">Most Recent Check-In</span>
-          <span class="metric-value">${data.hasCheckin ? `${data.daysAgo} Day${data.daysAgo === 1 ? "" : "s"} Ago` : "None Yet"}</span>
+  const TONES = { good: "good", info: "info", warn: "warn", bad: "bad" };
+
+  fetch("/api/share/public/" + encodeURIComponent(token))
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error("bad"))))
+    .then((d) => {
+      view.innerHTML = `
+        <h1 class="large-title">${M.esc(d.name)}</h1>
+        <p class="nav-sub" style="margin-bottom:22px;">A limited summary, shared with you by them.</p>
+        <div class="card">
+          <div class="card-title">Where They Are</div>
+          ${d.state ? M.pill(d.state, TONES[d.tone] || "warn") : M.pill("Still Calibrating", "info")}
+          <p class="footnote secondary" style="margin-top:14px;">
+            ${d.confidence === "established"
+              ? "Based on several weeks of their own history, compared only against themselves."
+              : "There is not enough history yet for this to mean very much."}
+          </p>
         </div>
-        <div class="metric-row">
-          <span class="metric-name">Total Check-Ins</span>
-          <span class="metric-value">${data.totalCheckins}</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-name">Connected Data Sources</span>
-          <span class="metric-value">${data.connectedCount}</span>
-        </div>
-      </div>
-
-      <p class="empty-note" style="margin-top: 18px;">This is a limited summary. Full journal and daily logs stay private.</p>
-    `;
-  }
-
-  function renderError(message) {
-    card.innerHTML = `
-      <div class="auth-brand">Myaku</div>
-      <h1>Link Not Available</h1>
-      <p class="page-intro">${message}</p>
-    `;
-  }
-
-  if (!token) {
-    renderError("This share link is invalid or has been removed.");
-  } else {
-    fetch(`/api/share/public/${token}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("not found"))))
-      .then(render)
-      .catch(() => renderError("This share link is invalid or has been removed."));
-  }
+        <p class="footnote secondary" style="margin-top:16px;">
+          This is all a share link shows. Their journal, their daily answers, and every underlying number stay private,
+          and they can revoke this link at any time.
+        </p>`;
+    })
+    .catch(() => fail("This link is invalid or has been removed."));
 })();

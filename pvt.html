@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Vigilance</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+  <div id="task-surface" class="task-surface" hidden>
+    <div class="task-inner">
+      <div class="task-hint" id="task-hint">Wait For The Counter</div>
+      <div class="task-stimulus" id="task-stimulus">000</div>
+      <div class="task-feedback" id="task-feedback"></div>
+    </div>
+    <div class="task-progress"><div class="task-progress-bar" id="task-progress-bar"></div></div>
+  </div>
+
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Brain Channel</div>
+      <h1 class="large-title">Reaction Test</h1>
+      <p class="nav-sub">Reaction time is the part of fatigue a wearable cannot see.</p>
+    </header>
+
+    <div id="intro">
+      <section class="section" id="coverage-section" hidden>
+        <div class="card">
+          <div class="spread"><span class="row-title">This Week</span><span class="row-value" id="coverage-count"></span></div>
+          <div class="meter" id="coverage-meter" style="margin-top:10px;" role="progressbar"
+            aria-label="Reaction Tests This Week" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span style="width:0%"></span></div>
+          <p class="footnote secondary" style="margin-top:10px;" id="coverage-note"></p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="group">
+          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Tap the moment the counter appears.</span><span class="row-sub">It arrives at random intervals between one and four seconds.</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Run it at the same hour each time.</span><span class="row-sub">Alertness follows a daily rhythm, so a moving hour measures the clock.</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Keep the screen in front of you.</span><span class="row-sub">Leaving the app mid-session discards the timings.</span></span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <button class="btn btn-filled btn-block" id="start-btn">Start Three Minutes</button>
+        <button class="btn btn-tinted btn-block" id="short-btn" style="margin-top:12px;">Quick Sixty Seconds</button>
+      </section>
+
+      <section class="section">
+        <div class="section-header">Timing On This Device</div>
+        <div class="group" id="env"></div>
+        <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+          Measured before the test, because a result is only worth keeping if the screen itself is steady.
+        </p>
+      </section>
+    </div>
+
+    <div id="results" hidden>
+      <section class="section">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Mean Reaction</div>
+            <div class="stat"><span class="stat-value" id="res-mean">—</span><span class="stat-unit">ms</span></div>
+            <div style="margin-top:10px;" id="res-pill"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Lapses</div>
+            <div class="stat"><span class="stat-value" id="res-lapses">—</span></div>
+            <p class="footnote secondary" style="margin-top:8px;">Responses slower than 355 milliseconds.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card">
+          <div class="card-title">Every Trial</div>
+          <div id="res-chart" style="height:160px;margin-top:8px;"></div>
+          <p class="footnote secondary" style="margin-top:10px;">The flat line is the lapse threshold.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">Session Detail</div>
+        <div class="group" id="res-detail"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">What This Can Resolve</div>
+        <div class="card" id="res-power"></div>
+      </section>
+
+      <section class="section">
+        <p class="footnote secondary" style="text-align:center;" id="save-status"></p>
+        <a class="btn btn-filled btn-block" href="index.html" style="margin-top:10px;">Done</a>
+        <button class="btn btn-tinted btn-block" id="again-btn" style="margin-top:12px;">Run Another</button>
+      </section>
+    </div>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/pvt.js"></script>
+</body>
+</html>

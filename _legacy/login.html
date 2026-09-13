@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Log In</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="auth-body">
+  <main class="auth-shell">
+    <div class="auth-card">
+      <div class="auth-brand">Myaku</div>
+      <h1>Log In</h1>
+      <p class="page-intro">Welcome Back To Myaku</p>
+
+      <form id="login-form">
+        <label class="field-label" for="email">Email</label>
+        <input type="email" id="email" class="field-input" autocomplete="email" required />
+
+        <label class="field-label" for="password">Password</label>
+        <input type="password" id="password" class="field-input" autocomplete="current-password" required />
+
+        <p class="form-error" id="login-error" style="display: none;"></p>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 18px;">Log In</button>
+      </form>
+
+      <a href="signup.html" class="muted-link" style="display: block; text-align: center; margin-top: 18px;">Create An Account</a>
+    </div>
+  </main>
+
+  <script src="js/auth-pages.js"></script>
+</body>
+</html>

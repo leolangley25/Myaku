@@ -2,33 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Myaku — Log In</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Sign In</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body class="auth-body">
-  <main class="auth-shell">
-    <div class="auth-card">
-      <div class="auth-brand">Myaku</div>
-      <h1>Log In</h1>
-      <p class="page-intro">Welcome Back To Myaku</p>
+<body style="padding-bottom:0;">
+  <div class="screen" style="max-width:420px;padding-top:14vh;">
+    <h1 class="large-title">Myaku</h1>
+    <p class="nav-sub" style="margin-bottom:26px;">Your body, your brain, and your life, measured together.</p>
 
-      <form id="login-form">
-        <label class="field-label" for="email">Email</label>
-        <input type="email" id="email" class="field-input" autocomplete="email" required />
+    <form id="form">
+      <label class="sr-only" for="email">Email</label>
+      <input class="field" id="email" type="email" placeholder="Email" autocomplete="email" required />
+      <label class="sr-only" for="password">Password</label>
+      <input class="field" id="password" type="password" placeholder="Password" autocomplete="current-password" required style="margin-top:12px;" />
+      <p class="footnote" style="color:var(--error);margin-top:12px;" id="error" role="alert" hidden></p>
+      <button class="btn btn-filled btn-block" type="submit" style="margin-top:24px;">Sign In</button>
+    </form>
 
-        <label class="field-label" for="password">Password</label>
-        <input type="password" id="password" class="field-input" autocomplete="current-password" required />
+    <a class="btn btn-tinted btn-block" href="signup.html" style="margin-top:12px;">Create An Account</a>
+    <a class="btn btn-gray btn-block" href="caffeine.html" style="margin-top:12px;">Try The Caffeine Tool</a>
+  </div>
 
-        <p class="form-error" id="login-error" style="display: none;"></p>
-
-        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 18px;">Log In</button>
-      </form>
-
-      <a href="signup.html" class="muted-link" style="display: block; text-align: center; margin-top: 18px;">Create An Account</a>
-    </div>
-  </main>
-
-  <script src="js/auth-pages.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>

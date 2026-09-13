@@ -1,74 +1,36 @@
-/* Myaku — onboarding calibration step, role-aware. */
+/* Myaku — onboarding calibration. Gives Channel P a day-one reference. */
 
 (function () {
-  const container = document.getElementById("baseline-domains");
-  const selections = {};
+  const DOMAINS = [
+    { key: "baseline_training", label: "Training Load" },
+    { key: "baseline_academic", label: "Academic Load" },
+    { key: "baseline_personal", label: "Personal Life" },
+  ];
 
-  function renderDomains(role) {
-    const domains = myakuDomainsForRole(role);
+  const store = {};
 
-    container.innerHTML = domains
-      .map(
-        (d) => `
-        <div class="domain-block" data-domain="${d.id}">
-          <div class="domain-title">${d.title}</div>
-          <div class="domain-prompt">${d.baselinePrompt}</div>
-          <div class="scale">
-            ${[1, 2, 3, 4, 5].map((n) => `<div class="scale-option" data-value="${n}">${n}</div>`).join("")}
-          </div>
-          <div class="scale-labels">
-            <span>${MYAKU_DATA.scaleLabels[0]}</span>
-            <span>${MYAKU_DATA.scaleLabels[4]}</span>
-          </div>
-        </div>
-      `
-      )
-      .join("");
+  document.getElementById("baselines").innerHTML = DOMAINS.map(
+    (d) => `<div class="card">
+      <div class="card-title">${M.esc(d.label)}</div>
+      ${M.scale({ name: d.key, lowLabel: "Very Low", highLabel: "Very High" })}
+    </div>`
+  ).join("");
 
-    container.querySelectorAll(".domain-block").forEach((block) => {
-      const domainId = block.getAttribute("data-domain");
-      block.querySelectorAll(".scale-option").forEach((opt) => {
-        opt.addEventListener("click", () => {
-          block.querySelectorAll(".scale-option").forEach((o) => o.classList.remove("selected"));
-          opt.classList.add("selected");
-          selections[domainId] = Number(opt.getAttribute("data-value"));
-        });
-      });
-    });
-  }
+  M.bindScales(document.body, store);
 
-  fetch("/api/me")
-    .then((r) => (r.ok ? r.json() : null))
-    .then((data) => {
-      const role = data && data.user ? data.user.role : "student_athlete";
-      renderDomains(role);
-
-      if (role === "individual") {
-        document.getElementById("athlete-fields").style.display = "none";
-        document.getElementById("course-load-label").textContent = "Work Or School Load";
-      }
-    });
-
-  document.getElementById("calibrate-submit").addEventListener("click", async () => {
-    const sportField = document.getElementById("sport");
-    const trainingDaysField = document.getElementById("training-days");
-
-    const body = {
-      sport: sportField.offsetParent ? sportField.value.trim() : null,
-      trainingDaysPerWeek: trainingDaysField.offsetParent ? trainingDaysField.value || null : null,
-      typicalBedtime: document.getElementById("bedtime").value || null,
-      courseLoad: document.getElementById("course-load").value || null,
-      baselineTrainingStress: selections.training || null,
-      baselineAcademicStress: selections.academic || null,
-      baselinePersonalStress: selections.personal || null,
-    };
-
-    await fetch("/api/calibration", {
+  document.getElementById("save").addEventListener("click", async (e) => {
+    e.currentTarget.disabled = true;
+    await M.api("/api/calibration", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    window.location.href = "connect.html";
+      body: {
+        sport: document.getElementById("sport").value.trim(),
+        trainingDays: document.getElementById("training-days").value || null,
+        typicalBedtime: document.getElementById("bedtime").value || null,
+        baselineTraining: store.baseline_training,
+        baselineAcademic: store.baseline_academic,
+        baselinePersonal: store.baseline_personal,
+      },
+    }).catch(() => {});
+    location.href = new URLSearchParams(location.search).get("from") === "more" ? "more.html" : "index.html";
   });
 })();

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myaku — Share</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="share">
+  <div class="app-shell">
+    <div id="nav-root"></div>
+    <main class="main">
+      <div class="page-header">
+        <div class="page-eyebrow">Share</div>
+        <h1>Share</h1>
+        <p class="page-intro">Create a private link that shows a coach or mentor your status, not your raw data.</p>
+      </div>
+
+      <div class="card">
+        <label class="field-label" for="share-label">Label</label>
+        <input type="text" id="share-label" class="field-input" placeholder="Ex. Coach Smith" />
+        <button class="btn btn-primary" id="share-create" style="margin-top: 16px;">Create Link</button>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">Your Links</div>
+        <div id="share-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/escape.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/share.js"></script>
+</body>
+</html>

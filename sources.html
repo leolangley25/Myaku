@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Data Sources</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Body Channel</div>
+      <h1 class="large-title">Data Sources</h1>
+      <p class="nav-sub" id="summary">Where your sleep and heart data comes from.</p>
+    </header>
+
+    <div id="banner" style="margin-top:12px;"></div>
+
+    <section class="section">
+      <div class="section-header">Wearables</div>
+      <div class="option-list" id="wearables"></div>
+    </section>
+
+    <section class="section" id="apple">
+      <div class="section-header">Apple Health</div>
+      <div class="card">
+        <p class="body">Your iPhone can export every night of sleep and heart data it holds.</p>
+        <ol class="steps-list">
+          <li>Open <strong>Health</strong>, tap your profile picture, then <strong>Export All Health Data</strong>.</li>
+          <li>Save the archive to a computer and unzip it.</li>
+          <li>Choose the <strong>export.xml</strong> file from inside the unzipped folder.</li>
+        </ol>
+        <label class="drop" id="apple-drop" style="display:block;margin-top:16px;cursor:pointer;">
+          <input type="file" id="apple-file" accept=".xml,text/xml,application/xml" class="sr-only" />
+          <span class="body">Choose The Export File</span>
+          <span class="footnote secondary" style="display:block;margin-top:4px;">Or drop it here. Large files are fine.</span>
+        </label>
+        <div class="meter" id="apple-meter" style="margin-top:14px;" hidden
+          role="progressbar" aria-label="Upload Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span style="width:0%"></span></div>
+        <p class="status-line" id="apple-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Spreadsheet</div>
+      <div class="card">
+        <p class="body">A CSV file with a header row. Only the date column is required.</p>
+        <p class="footnote secondary" style="margin-top:8px;">Columns can be named date, hrv, rhr, sleep_minutes, and sleep_efficiency.</p>
+        <label class="drop" style="display:block;margin-top:14px;cursor:pointer;">
+          <input type="file" id="csv-file" accept=".csv,text/csv" class="sr-only" />
+          <span class="body">Choose A CSV File</span>
+        </label>
+        <p class="status-line" id="csv-status" aria-live="polite"></p>
+        <button class="btn btn-tinted btn-block" id="csv-import" style="margin-top:12px;" hidden>Import These Rows</button>
+      </div>
+    </section>
+
+    <section class="section" id="manual">
+      <div class="section-header">Enter By Hand</div>
+      <div class="card">
+        <label class="field-label" for="m-date" style="margin-top:0;">Night Ending On</label>
+        <input class="field" id="m-date" type="date" />
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="m-hours">Hours Asleep</label>
+            <input class="field" id="m-hours" type="number" inputmode="decimal" min="0" max="16" step="0.25" placeholder="7.5" />
+          </div>
+          <div>
+            <label class="field-label" for="m-eff">Sleep Quality Percent</label>
+            <input class="field" id="m-eff" type="number" inputmode="numeric" min="0" max="100" placeholder="90" />
+          </div>
+          <div>
+            <label class="field-label" for="m-hrv">Heart Rate Variability</label>
+            <input class="field" id="m-hrv" type="number" inputmode="numeric" min="0" max="300" placeholder="65" />
+          </div>
+          <div>
+            <label class="field-label" for="m-rhr">Resting Heart Rate</label>
+            <input class="field" id="m-rhr" type="number" inputmode="numeric" min="20" max="150" placeholder="52" />
+          </div>
+        </div>
+        <button class="btn btn-tinted btn-block" id="m-save" style="margin-top:16px;">Save This Night</button>
+        <p class="status-line" id="m-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">What Is Stored</div>
+      <div class="group" id="stored"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Use one heart rate variability source per account. Apple Watch measures a different statistic from Whoop and Fitbit,
+        and mixing them would look like a change in you when only the measuring changed.
+      </p>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/sources.js"></script>
+</body>
+</html>

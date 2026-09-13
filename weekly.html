@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Weekly Reflection</title>
+  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow" id="week-line">This Week</div>
+      <h1 class="large-title">Reflection</h1>
+      <p class="nav-sub">One square per area of your life, then the three questions that separate tired from done.</p>
+    </header>
+
+    <div id="domains"></div>
+
+    <section class="section">
+      <div class="section-header">The Three Dimensions</div>
+      <div class="card">
+        <p class="footnote secondary" style="margin-bottom:16px;">
+          Burnout is not one thing. These are asked apart because the order they move in says something.
+        </p>
+        <div id="burnout"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Everything Else</div>
+      <div class="card" id="extras"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Words For This Week</div>
+      <div class="card">
+        <p class="footnote secondary" style="margin-bottom:14px;">
+          Pick any that fit, including the good ones. These are stored as tags and never scored.
+        </p>
+        <div id="emotions"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <button class="btn btn-filled btn-block" id="save">Save Reflection</button>
+      <p class="footnote secondary" style="margin-top:10px;text-align:center;" id="status"></p>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/weekly.js"></script>
+</body>
+</html>
