@@ -87,6 +87,10 @@ const M = (() => {
     };
   }
 
+  /* Server messages are written as bare clauses. Shown to a person they are a
+     sentence, so they end like one. */
+  const sentence = (msg) => (msg && !/[.!?]$/.test(msg) ? `${msg}.` : msg);
+
   async function api(path, options = {}) {
     const headers = { ...localHeaders(), ...(options.headers || {}) };
     let body = options.body;
@@ -111,10 +115,10 @@ const M = (() => {
       }
       // On a public page the server's own message is the useful one, such as
       // telling somebody their password was wrong.
-      throw Object.assign(new Error(data.error || "unauthenticated"), { status: 401 });
+      throw Object.assign(new Error(sentence(data.error) || "unauthenticated"), { status: 401 });
     }
     if (!res.ok) {
-      throw Object.assign(new Error(data.error || "Something went wrong, so please try again."), { status: res.status });
+      throw Object.assign(new Error(sentence(data.error) || "Something went wrong, so please try again."), { status: res.status });
     }
     return data;
   }
@@ -150,6 +154,15 @@ const M = (() => {
       provisional: "Early Reading",
       established: "Solid Baseline",
     }[confidence] || "Reading";
+  }
+
+  /* The label alone never said what it meant for trusting the reading. */
+  function confidenceSentence(confidence) {
+    return {
+      calibrating: "Myaku is still learning your normal, so nothing is named yet.",
+      provisional: "Based on only a few weeks, so this can still shift as more arrive.",
+      established: "Based on enough weeks of your own history to trust the comparison.",
+    }[confidence] || "";
   }
 
   const humanize = (name) =>
@@ -399,33 +412,43 @@ const M = (() => {
     psychological: { label: "Life", color: "var(--ch-psy)" },
   };
 
-  /* A channel z of 0 sits at the top of the ring; worse fills it clockwise. */
+  /* A small tick gauge. The arc runs from better than usual on the left, through
+     typical at the top, to worse than usual on the right, and the ticks between
+     the top and the channel's position are lit in its colour. */
   function ring(z, color, size = 78) {
-    const r = (size - 9) / 2;
-    const circ = 2 * Math.PI * r;
-    const filled = z == null ? 0 : Math.max(0, Math.min(1, (z + 1) / 3));
-    const offset = circ * (1 - filled);
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
-      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--outline-variant)" stroke-width="7"/>
-      <circle class="ring-arc" data-circ="${circ}" data-offset="${offset}"
-        cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="7"
-        stroke-linecap="round" stroke-dasharray="${circ}"
-        stroke-dashoffset="${offset}"
-        transform="rotate(-90 ${size / 2} ${size / 2})"/>
-    </svg>`;
+    const c = size / 2;
+    const outer = c - 2;
+    const len = size * 0.13;
+    const count = 29;
+    const sweep = 270;
+    const start = -135;
+    const target = z == null ? null : start + ((Math.max(-3, Math.min(3, z)) + 3) / 6) * sweep;
+    const top = start + sweep / 2;
+    let ticks = "";
+    for (let i = 0; i < count; i++) {
+      const a = start + (i / (count - 1)) * sweep;
+      const lit = target != null && a >= Math.min(top, target) - 0.01 && a <= Math.max(top, target) + 0.01;
+      const rad = ((a - 90) * Math.PI) / 180;
+      const x1 = (c + Math.cos(rad) * outer).toFixed(2);
+      const y1 = (c + Math.sin(rad) * outer).toFixed(2);
+      const x2 = (c + Math.cos(rad) * (outer - len)).toFixed(2);
+      const y2 = (c + Math.sin(rad) * (outer - len)).toFixed(2);
+      ticks += `<line class="ring-tick${lit ? " lit" : ""}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+        stroke="${lit ? color : "var(--on-surface)"}" stroke-opacity="${lit ? 1 : 0.16}" stroke-width="2" stroke-linecap="round"/>`;
+    }
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">${ticks}</svg>`;
   }
 
-  /* Sweeps each arc up from empty once it is in the document. Kept separate
-     from ring() so the markup can still be rendered as a string. */
+  /* Lights each gauge's ticks in sequence from the top once it is in the
+     document. Kept separate from ring() so the markup can be rendered as a string. */
   function animateRings(container, { stagger = 130 } = {}) {
-    container.querySelectorAll(".ring-arc").forEach((arc, i) => {
-      const circ = Number(arc.dataset.circ);
-      const offset = Number(arc.dataset.offset);
-      if (!Number.isFinite(circ) || Motion.reduced()) return;
-      arc.animate(
-        [{ strokeDashoffset: circ }, { strokeDashoffset: offset }],
-        { duration: 1100, delay: i * stagger, easing: "cubic-bezier(0.2, 0, 0, 1)", fill: "backwards" }
-      );
+    if (Motion.reduced()) return;
+    container.querySelectorAll("svg").forEach((svg, s) => {
+      svg.querySelectorAll(".ring-tick.lit").forEach((tick, i) => {
+        tick.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 260, delay: s * stagger + i * 30, easing: "ease-out", fill: "backwards",
+        });
+      });
     });
   }
 
@@ -525,6 +548,11 @@ const M = (() => {
       fill: '<path d="M4 4.6v14.8h15.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.4 15.6 11 11.2l3 2.5 4.4-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11.2" r="1.5"/><circle cx="18.4" cy="7.7" r="1.5"/>',
     },
     {
+      id: "ask", href: "ask.html", label: "Ask",
+      outline: '<rect x="4" y="4.8" width="16" height="11.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.4 16.2v3.4l4.2-3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+      fill: '<rect x="4" y="4.8" width="16" height="11.4" rx="2.6"/><path d="M8.4 16.2v3.4l4.2-3.4z"/>',
+    },
+    {
       id: "more", href: "more.html", label: "More",
       outline: '<circle cx="5.4" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="18.6" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/>',
       fill: '<circle cx="5.4" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18.6" cy="12" r="2"/>',
@@ -551,12 +579,12 @@ const M = (() => {
     if (Motion.reduced()) return;
     const current = el.querySelector(".nav-item.active");
     if (!current) return;
-    current.querySelector(".nav-indicator").animate(
+    current.animate(
       [
-        { transform: "scaleX(0.2)", opacity: 0 },
-        { transform: "scaleX(1)", opacity: 1 },
+        { opacity: 0.3, transform: "scale(0.86)" },
+        { opacity: 1, transform: "scale(1)" },
       ],
-      { duration: 520, easing: "cubic-bezier(0.2, 0, 0, 1)" }
+      { duration: 460, easing: "cubic-bezier(0.2, 0, 0, 1)" }
     );
     current.querySelector(".nav-icon").animate(
       [{ transform: "scale(0.5)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }],
@@ -587,15 +615,174 @@ const M = (() => {
     }
   }
 
+  /* ---------------- getting around ---------------- */
+
+  const TAB_HOME = { today: "index.html", log: "log.html", trends: "trends.html", ask: "ask.html", more: "more.html" };
+
+  /* Every page that is not a tab is somewhere you went into, so it gets a way
+     back out. Body, Brain and Life used to show Today lit up in the bar with no
+     other sign of where you were or how to leave. */
+  function mountBack(activeTab) {
+    const here = location.pathname.split("/").pop() || "index.html";
+    const home = TAB_HOME[activeTab];
+    const header = document.querySelector(".nav-large");
+    if (!home || here === home || !header || header.querySelector(".back-link")) return;
+
+    const link = document.createElement("a");
+    link.className = "back-link";
+    link.href = home;
+    link.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5,5.5 L8,12 L14.5,18.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back</span>';
+    /* A real step back when the last page was inside the app, so the list you
+       came from is where you left it, scroll position and all. */
+    link.addEventListener("click", (e) => {
+      let from = null;
+      try {
+        from = document.referrer ? new URL(document.referrer) : null;
+      } catch {
+        from = null;
+      }
+      const inside = from && from.origin === location.origin && !/(login|signup|welcome)\.html$/.test(from.pathname);
+      if (inside && history.length > 1) {
+        e.preventDefault();
+        history.back();
+      }
+    });
+    header.prepend(link);
+  }
+
+  /* Long pages get their sections as chips inside the sticky header, so the
+     ninth section of Trends is one tap away instead of eight screens of
+     scrolling. Built from the section headings the page already has, and rebuilt
+     when a page fills in or hides a section. */
+  function mountJumpBar() {
+    const screen = document.querySelector(".screen");
+    const header = document.querySelector(".nav-large");
+    if (!screen || !header) return;
+    let bar = null;
+    let last = "";
+
+    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    const build = () => {
+      const items = [...screen.querySelectorAll(".section")]
+        .filter((s) => !s.hidden && s.offsetParent !== null && !s.closest(".nav-large"))
+        .map((s) => {
+          const heading = s.querySelector(":scope > .section-header");
+          return heading ? { section: s, label: heading.textContent.trim() } : null;
+        })
+        .filter(Boolean);
+      const long = document.documentElement.scrollHeight > window.innerHeight * 3.5;
+      const key = long && items.length >= 4 ? items.map((i) => i.label).join("|") : "";
+      if (key === last) return;
+      last = key;
+
+      if (!key) {
+        if (bar) bar.hidden = true;
+        document.body.classList.remove("has-jump");
+        return;
+      }
+      if (!bar) {
+        bar = document.createElement("nav");
+        bar.className = "jump-bar";
+        bar.setAttribute("aria-label", "On This Page");
+        header.appendChild(bar);
+        /* Scrolled by hand rather than by the anchor, because the header shrinks
+           once the page moves and a fixed offset either hid the heading under it
+           or left a gap. The header is collapsed first, then measured. */
+        bar.addEventListener("click", (e) => {
+          const chip = e.target.closest(".jump-chip");
+          const target = chip && document.getElementById(chip.getAttribute("href").slice(1));
+          if (!target) return;
+          e.preventDefault();
+          if (target.classList.contains("folded")) {
+            target.classList.remove("folded");
+            const heading = target.querySelector(":scope > .section-header");
+            if (heading) heading.setAttribute("aria-expanded", "true");
+          }
+          const wasCollapsed = header.classList.contains("collapsed");
+          header.classList.add("collapsed", "scrolled");
+          /* The collapse is animated, so the header is measured once it has
+             finished shrinking; measured straight away it is still full height. */
+          const settle = wasCollapsed || Motion.reduced() ? 0 : 320;
+          setTimeout(() => {
+            const offset = header.getBoundingClientRect().height + 12;
+            const y = target.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({ top: Math.max(0, y), behavior: Motion.reduced() ? "auto" : "smooth" });
+          }, settle);
+          history.replaceState(null, "", "#" + target.id);
+        });
+      }
+      bar.hidden = false;
+      document.body.classList.add("has-jump");
+      bar.innerHTML = items
+        .map(({ section, label }) => {
+          if (!section.id) section.id = "s-" + slug(label);
+          return `<a class="jump-chip" href="#${esc(section.id)}">${esc(label)}</a>`;
+        })
+        .join("");
+    };
+
+    let pending = null;
+    const schedule = () => {
+      clearTimeout(pending);
+      pending = setTimeout(build, 160);
+    };
+    new MutationObserver((records) => {
+      if (records.every((r) => bar && bar.contains(r.target))) return;
+      schedule();
+    }).observe(screen, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+    window.addEventListener("load", schedule);
+    schedule();
+  }
+
+  /* Reference material that most visits do not need — the research behind a
+     channel, how to read a page — starts folded to its heading. It used to add
+     a screen or more of small print to every channel page. */
+  function mountFolds() {
+    const sections = [...document.querySelectorAll(".section[data-fold]")];
+    sections.forEach((section) => {
+      const heading = section.querySelector(":scope > .section-header");
+      if (!heading || heading.dataset.foldReady) return;
+      heading.dataset.foldReady = "1";
+      heading.setAttribute("role", "button");
+      heading.tabIndex = 0;
+      const toggle = (open) => {
+        section.classList.toggle("folded", !open);
+        heading.setAttribute("aria-expanded", String(open));
+      };
+      toggle(false);
+      heading.addEventListener("click", () => toggle(section.classList.contains("folded")));
+      heading.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle(section.classList.contains("folded"));
+        }
+      });
+    });
+    /* A section chip in the header opens whatever it points at. */
+    window.addEventListener("hashchange", () => {
+      const target = document.getElementById(location.hash.slice(1));
+      if (target && target.classList.contains("folded")) {
+        target.classList.remove("folded");
+        const heading = target.querySelector(":scope > .section-header");
+        if (heading) heading.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
   function boot(activeTab) {
     if (activeTab) mountTabs(activeTab);
+    mountBack(activeTab);
+    mountFolds();
+    mountJumpBar();
   }
 
   preparePage();
 
   return {
     esc, api, todayKey, shiftKey, weekStartKey, prettyDate, greeting, timezone, ago, parseStamp,
-    row, group, pill, confidenceLabel,
+    row, group, pill, confidenceLabel, confidenceSentence,
     scale, wordScale, bindScales, resetScales, bindChips, setChips,
     padMarkup, bindPad, quadrant, affectPhrase,
     CHANNELS, ring, animateRings, zLabel,

@@ -27,6 +27,7 @@
         <div class="card">
           <div class="card-title">Where They Are</div>
           ${d.state ? M.pill(d.state, TONES[d.tone] || "warn") : M.pill("Still Calibrating", "info")}
+          ${d.meaning ? `<p class="body" style="margin-top:14px;">${M.esc(d.meaning)}</p>` : ""}
           <p class="footnote secondary" style="margin-top:14px;">
             ${d.confidence === "established"
               ? "Based on several weeks of their own history, compared only against themselves."
@@ -34,6 +35,10 @@
           </p>
         </div>
         <p class="footnote secondary" style="margin-top:16px;">
+          This name describes patterns in their own data. It is not a fitness score, not a diagnosis, and not a reason
+          to change anything without talking to them first.
+        </p>
+        <p class="footnote secondary" style="margin-top:12px;">
           This is all a share link shows. Their journal, their daily answers, and every underlying number stay private,
           and they can revoke this link at any time.
         </p>`;

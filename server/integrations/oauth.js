@@ -50,6 +50,10 @@ function pkce() {
 
 const FIELDS = ["hrv", "rhr", "sleepMinutes", "sleepEfficiency"];
 
+/* A night's start and end, as "YYYY-MM-DD HH:MM" on the athlete's own clock. */
+const STAMPS = ["sleepStart", "sleepEnd"];
+const STAMP_RE = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+
 /* Providers report sleep and heart data from different endpoints, often with a
    field missing on a given day. Later partials fill gaps; they never overwrite a
    value with nothing. */
@@ -61,8 +65,23 @@ function mergeByDate(...partials) {
     FIELDS.forEach((k) => {
       if (p[k] != null && Number.isFinite(Number(p[k]))) row[k] = Number(p[k]);
     });
+    STAMPS.forEach((k) => {
+      if (typeof p[k] === "string" && STAMP_RE.test(p[k])) row[k] = p[k];
+    });
   });
   return Object.values(out).sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+/* Start and end are kept only as a pair, and only when they describe something
+   a night could be: ending after it starts, and lasting one to sixteen hours. */
+function cleanStamps(row) {
+  const none = { sleepStart: null, sleepEnd: null };
+  const start = row && row.sleepStart;
+  const end = row && row.sleepEnd;
+  if (!STAMP_RE.test(start || "") || !STAMP_RE.test(end || "")) return none;
+  const span = Date.parse(end.replace(" ", "T") + ":00Z") - Date.parse(start.replace(" ", "T") + ":00Z");
+  if (!(span >= 60 * 60000 && span <= 16 * 60 * 60000)) return none;
+  return { sleepStart: start, sleepEnd: end };
 }
 
 /* Readings a sensor could plausibly produce. Anything outside is a sync artefact
@@ -77,4 +96,4 @@ function plausible(row) {
   );
 }
 
-module.exports = { postForm, getJson, pkce, mergeByDate, plausible, FIELDS };
+module.exports = { postForm, getJson, pkce, mergeByDate, plausible, cleanStamps, FIELDS };

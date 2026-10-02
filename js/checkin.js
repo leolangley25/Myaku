@@ -28,25 +28,31 @@
   let mode = readMode();
   let restoring = false;
 
+  /* Quick is the default now. Full opened on three full-screen squares and two
+     rows of eleven buttons, with the save button three screens down, which is not
+     what "under a minute" looks like. Anyone who picks Full keeps it. */
   function readMode() {
     try {
-      return localStorage.getItem(MODE_KEY) === "quick" ? "quick" : "full";
+      return localStorage.getItem(MODE_KEY) === "full" ? "full" : "quick";
     } catch {
-      return "full";
+      return "quick";
     }
   }
 
   /* ---------------- pads ---------------- */
 
+  /* Labelled in the day's own terms. "Full Say" and "No Say" meant little to
+     most people the first time, and nothing at all by the tenth. */
   document.getElementById("pad-load").innerHTML = M.padMarkup({
     id: "load-pad", tint: "strain",
-    top: "Full Say", bottom: "No Say", left: "Light", right: "Crushing",
-    corners: { tl: "Chosen And Easy", tr: "Chosen And Hard", bl: "Quiet But Imposed", br: "Heavy And Imposed" },
+    top: "My Call", bottom: "Not My Call", left: "Light Day", right: "Crushing Day",
+    corners: { tl: "Easy, My Call", tr: "Hard, My Call", bl: "Easy, Not Mine", br: "Hard, Not Mine" },
+    label: "How heavy was today, and how much of it was your call?",
   });
 
   document.getElementById("pad-state").innerHTML = M.padMarkup({
     id: "state-pad", tint: "state",
-    top: "Sharp", bottom: "Foggy", left: "Empty", right: "Recovered",
+    top: "Sharp", bottom: "Foggy", left: "Drained", right: "Recovered",
     corners: { tl: "Tired But Clear", tr: "Firing", bl: "Flat", br: "Rested But Fuzzy" },
   });
 
@@ -59,13 +65,16 @@
   const readState = document.getElementById("read-state");
   const readAffect = document.getElementById("read-affect");
 
+  const band = (v, words) => words[v <= 2 ? 0 : v <= 4 ? 1 : v <= 6 ? 2 : v <= 8 ? 3 : 4];
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
   const loadPad = M.bindPad("load-pad", {
     xMin: 0, xMax: 10, yMin: 0, yMax: 10, step: 1,
     onChange: (load, control) => {
       const strained = load >= 6 && control <= 4;
-      readLoad.textContent = `Demand ${load} of 10, control ${control} of 10. ${
-        strained ? "High demand with little say over it." : "Within a workable range."
-      }`;
+      readLoad.textContent = `${cap(band(load, ["a light day", "a manageable day", "a full day", "a heavy day", "a crushing day"]))}, ${
+        band(control, ["with almost none of it your call", "with little of it your call", "with some of it your call", "with most of it your call", "all on your terms"])}.${
+        strained ? " Heavy and out of your hands is the combination that wears people down." : ""}`;
       changed();
       return strained ? "var(--red)" : "var(--green)";
     },
@@ -74,7 +83,8 @@
   const statePad = M.bindPad("state-pad", {
     xMin: 0, xMax: 10, yMin: 0, yMax: 10, step: 1,
     onChange: (recovery, focus) => {
-      readState.textContent = `Body ${recovery} of 10, head ${focus} of 10.`;
+      readState.textContent = `Your body feels ${band(recovery, ["drained", "tired", "okay", "fresh", "fully recovered"])} and your head feels ${
+        band(focus, ["foggy", "slow", "okay", "clear", "sharp"])}.`;
       changed();
       return focus <= 4 ? "var(--ch-cog)" : recovery <= 4 ? "var(--ch-auto)" : "var(--green)";
     },
@@ -181,7 +191,11 @@
     [loadPad, statePad, affectPad].forEach((p) => p.clear());
     M.resetScales(document.body, store);
     M.setChips(chipBox, store, "attribution", []);
-    readLoad.textContent = readState.textContent = readAffect.textContent = "Tap anywhere on the square.";
+    /* What each direction means, rather than only "tap the square", because a square
+       that answers two questions at once is not self-explanatory the first time. */
+    readLoad.textContent = "Right for a heavier day. Up for more of it being your call.";
+    readState.textContent = "Across is how recovered your body feels. Up is how sharp your head feels.";
+    readAffect.textContent = "Across is how pleasant you feel. Up is how wired you feel.";
   }
 
   /* ---------------- day and mode ---------------- */
@@ -197,12 +211,21 @@
       b.setAttribute("aria-pressed", String(b.dataset.mode === mode))
     );
     document.querySelectorAll("[data-full-only]").forEach((s) => (s.hidden = mode === "quick"));
+    document.getElementById("more-detail-section").hidden = mode !== "quick";
     document.getElementById("mode-sub").textContent =
       mode === "quick"
-        ? "One square, for the days that are already too full. It still counts."
-        : "Three squares and two rows. Each square carries two answers, so this stays under a minute.";
+        ? "One square is all it takes. Add more detail below if you have a minute."
+        : "Three squares and two rows. Each square carries two answers.";
     renderProgress();
   }
+
+  /* The way from Quick to Full that does not involve finding a toggle at the top
+     of the page. Answers already given are kept. */
+  document.getElementById("more-detail").addEventListener("click", () => {
+    setMode("full");
+    const next = document.querySelector("[data-full-only]");
+    if (next) next.scrollIntoView({ block: "start", behavior: Motion.reduced() ? "auto" : "smooth" });
+  });
 
   async function setDay(offset) {
     date = M.shiftKey(M.todayKey(), offset);

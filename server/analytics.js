@@ -126,7 +126,7 @@ function leadLag(daily, metrics, sessions) {
   return {
     exploratory: true,
     pairs: [
-      { key: "loadSleep", label: "Load And Sleep Quality", ...scan(load, sleepEff) },
+      { key: "loadSleep", label: "Load And Sleep Efficiency", ...scan(load, sleepEff) },
       { key: "loadReaction", label: "Load And Reaction Time", ...scan(load, rt) },
     ],
   };
@@ -221,6 +221,143 @@ function caffeineSleep(caffeine, metrics) {
     confound: "Busy stretches raise late caffeine and disturb sleep independently.",
     points: Object.keys(lateByDay).sort().filter((d) => sleepEff[nextDay(d)] != null)
       .map((d) => ({ date: d, mg: lateByDay[d], sleep: sleepEff[nextDay(d)] })),
+  };
+}
+
+/* 4a-ii. Caffeine left at bedtime, night by night.
+
+   A description, not a test. Each logged day is decayed to the athlete's usual
+   bedtime with an average half-life and paired with the sleep that followed,
+   which every importer keys by the morning it ended. The zones convert the dose
+   and timing studies into what those doses leave at bedtime: the timing a 2023
+   review recommends for coffee lands near 30 mg, and 400 mg taken twelve hours
+   out, which still cut deep sleep in a 2025 trial, leaves about 75. */
+const CAFFEINE = { halfLifeHours: 5, absorbHours: 0.75, clearMg: 30, highMg: 75 };
+const NIGHT_MEASURES = { sleepMinutes: "sleep_minutes", sleepEfficiency: "sleep_efficiency", hrv: "hrv_ms", rhr: "rhr_bpm" };
+
+/* Absorption is a straight ramp over the first 45 minutes, which is close enough
+   to stop a drink logged at ten to eleven from counting as nothing at eleven. */
+function caffeineLevel(mg, elapsedHours) {
+  if (!(elapsedHours >= 0)) return 0;
+  return mg * Math.min(1, elapsedHours / CAFFEINE.absorbHours) * Math.pow(0.5, elapsedHours / CAFFEINE.halfLifeHours);
+}
+
+function clockHours(hhmm) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(hhmm || ""));
+  if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) return null;
+  return Number(m[1]) + Number(m[2]) / 60;
+}
+
+function dayOffset(d, days) {
+  const t = new Date(d + "T00:00:00Z");
+  t.setUTCDate(t.getUTCDate() + days);
+  return t.toISOString().slice(0, 10);
+}
+
+function caffeineNights(caffeine, metrics, { bedtime = null, today = null } = {}) {
+  let bedHour = clockHours(bedtime);
+  if (bedHour == null) bedHour = 23;
+  if (bedHour < 12) bedHour += 24; // a bedtime after midnight belongs to the evening before it
+
+  const doses = {};
+  const byLabel = {};
+  caffeine.forEach((c) => {
+    const hour = clockHours(c.logged_at);
+    const mg = Number(c.mg);
+    if (hour == null || !(mg > 0)) return;
+    const d = String(c.date).slice(0, 10);
+    (doses[d] = doses[d] || []).push({ hour, mg });
+    const label = String(c.label || "").trim();
+    if (label) (byLabel[label] = byLabel[label] || []).push(mg);
+  });
+
+  /* What is in the athlete on day d at a given hour, including whatever is
+     still left from the day before. */
+  const levelOn = (d, hour) => {
+    let sum = 0;
+    (doses[d] || []).forEach((e) => { sum += caffeineLevel(e.mg, hour - e.hour); });
+    (doses[dayOffset(d, -1)] || []).forEach((e) => { sum += caffeineLevel(e.mg, hour + 24 - e.hour); });
+    return sum;
+  };
+  /* The level while falling asleep rather than at the exact minute of bedtime,
+     so a drink still being absorbed is counted at its peak. */
+  const onsetLevel = (d) => Math.max(...[0, 0.25, 0.5, 0.75].map((k) => levelOn(d, bedHour + k)));
+
+  const round1 = (x) => Math.round(x * 10) / 10;
+  const num = (x) => (x == null || !Number.isFinite(Number(x)) ? null : Number(x));
+  const zoneFor = (mg) => (mg < CAFFEINE.clearMg ? "clear" : mg < CAFFEINE.highMg ? "borderline" : "high");
+
+  const nightAfter = {};
+  metrics.forEach((m) => { nightAfter[dayOffset(String(m.date).slice(0, 10), -1)] = m; });
+
+  const days = Object.keys(doses).sort().map((d) => {
+    const bedMg = round1(onsetLevel(d));
+    const night = nightAfter[d] || {};
+    const row = {
+      date: d,
+      totalMg: round1(doses[d].reduce((s, e) => s + e.mg, 0)),
+      lastHour: Math.max(...doses[d].map((e) => e.hour)),
+      bedMg,
+      zone: zoneFor(bedMg),
+    };
+    Object.entries(NIGHT_MEASURES).forEach(([key, column]) => { row[key] = num(night[column]); });
+    return row;
+  });
+
+  const nights = days.filter((d) => Object.keys(NIGHT_MEASURES).some((k) => d[k] != null));
+
+  const zones = ["clear", "borderline", "high"].map((key) => {
+    const rows = nights.filter((d) => d.zone === key);
+    const out = { key, n: rows.length };
+    Object.keys(NIGHT_MEASURES).forEach((k) => {
+      const values = rows.map((r) => r[k]).filter((x) => x != null);
+      out[k] = values.length ? round1(median(values)) : null;
+      out[k + "N"] = values.length;
+    });
+    return out;
+  });
+
+  const end = today || (days.length ? days[days.length - 1].date : null);
+  const recentDays = end ? days.filter((d) => d.date > dayOffset(end, -14) && d.date <= end) : [];
+  const finished = recentDays.filter((d) => d.date < end);
+  const recent = {
+    days: recentDays.length,
+    averageMg: recentDays.length ? Math.round(mean(recentDays.map((d) => d.totalMg))) : null,
+    lastHour: recentDays.length ? median(recentDays.map((d) => d.lastHour)) : null,
+    nights: finished.length,
+    bedMg: finished.length ? round1(median(finished.map((d) => d.bedMg))) : null,
+    nightsOver: finished.filter((d) => d.zone !== "clear").length,
+  };
+
+  /* The usual logged day, averaged over the two weeks before today, so today's
+     curve has something of the athlete's own to sit against. */
+  const before = end ? days.filter((d) => d.date < end && d.date >= dayOffset(end, -14)) : [];
+  let usual = null;
+  if (before.length >= 5) {
+    usual = [];
+    for (let h = 0; h <= bedHour + 8 + 1e-9; h += 0.25) {
+      usual.push({ hour: h, mg: round1(mean(before.map((d) => levelOn(d.date, h)))) });
+    }
+  }
+
+  const topDrinks = Object.entries(byLabel)
+    .filter(([, mgs]) => mgs.length >= 2)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 3)
+    .map(([label, mgs]) => ({ label, mg: Math.round(median(mgs)), count: mgs.length }));
+
+  return {
+    model: CAFFEINE,
+    bedHour,
+    hasBodyData: metrics.some((m) => Object.values(NIGHT_MEASURES).some((column) => num(m[column]) != null)),
+    loggedDays: days.length,
+    pairedNights: nights.length,
+    zones,
+    days: days.slice(-60),
+    nights: nights.slice(-180),
+    recent,
+    usual,
+    topDrinks,
   };
 }
 
@@ -495,4 +632,7 @@ function compute({ daily = [], weekly = [], sessions = [], metrics = [], caffein
   };
 }
 
-module.exports = { compute, spearman, correlationP, mean, sd, median };
+module.exports = {
+  compute, caffeineNights, caffeineLevel, attribution, sleepPerception,
+  spearman, correlationP, mean, sd, median,
+};

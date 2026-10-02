@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Myaku — Welcome</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <title>Myaku — Setup</title>
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,14 +14,14 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body style="padding-bottom:0;">
   <div class="screen" style="max-width:520px;">
     <header class="nav-large" style="padding-top:6vh;">
-      <div class="steps" id="steps" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-      <div class="eyebrow" id="step-count">Step One Of Five</div>
+      <div class="steps" id="steps" aria-hidden="true"></div>
+      <div class="eyebrow" id="step-count">Step One Of Eight</div>
     </header>
 
     <!-- 1. What this is -->
@@ -48,11 +47,25 @@
           Myaku watches for the moments these three disagree, like a recovered body with a strained head. Those are the
           patterns a single score hides.
         </p>
+        <p class="footnote secondary" style="margin-top:12px;">Setup takes about four minutes, and every step after this one can be skipped.</p>
       </section>
     </div>
 
-    <!-- 2. Privacy -->
+    <!-- 2. Who you are -->
     <div class="step" data-step="1" hidden>
+      <h1 class="large-title">Who Is Using This</h1>
+      <p class="nav-sub">The three channels are the same for everyone. What changes is the calendar around them.</p>
+      <section class="section">
+        <div class="option-list" id="audience-options"></div>
+        <p class="footnote secondary" style="margin-top:14px;padding:0 4px;">
+          Myaku gives the most to someone in a full season with a team schedule, and it still works for anyone training
+          seriously. You can change this later in About You.
+        </p>
+      </section>
+    </div>
+
+    <!-- 3. Privacy -->
+    <div class="step" data-step="2" hidden>
       <h1 class="large-title">Yours, Not Your Coach's</h1>
       <p class="nav-sub">Myaku is built for you, and it stays that way.</p>
       <section class="section">
@@ -66,6 +79,10 @@
             <span class="row-sub">No mood is ever inferred from what you write. Only a rating you choose counts.</span>
           </span></div>
           <div class="row" style="align-items:flex-start;"><span class="row-main">
+            <span class="row-title">The Assistant Is Off</span>
+            <span class="row-sub">Asking questions about your readings sends a summary to a model, so it stays off until you turn it on.</span>
+          </span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main">
             <span class="row-title">Leave Whenever You Want</span>
             <span class="row-sub">Download everything, or delete your account and every row with it, from More.</span>
           </span></div>
@@ -77,10 +94,10 @@
       </section>
     </div>
 
-    <!-- 3. Body data -->
-    <div class="step" data-step="2" hidden>
+    <!-- 4. Body data -->
+    <div class="step" data-step="3" hidden>
       <h1 class="large-title">Connect Body Data</h1>
-      <p class="nav-sub">Connecting brings in your past months too, so your Body channel does not start from zero.</p>
+      <p class="nav-sub">Connecting brings in your past months too, so your Body channel starts with a baseline instead of nothing.</p>
       <section class="section">
         <div id="connect-banner"></div>
         <div class="option-list" id="connect-options" style="margin-top:12px;"></div>
@@ -90,8 +107,78 @@
       </section>
     </div>
 
-    <!-- 4. Reminders -->
-    <div class="step" data-step="3" hidden>
+    <!-- 5. Your training week -->
+    <div class="step" data-step="4" hidden>
+      <h1 class="large-title">Your Training Week</h1>
+      <p class="nav-sub">Enough to tell an ordinary week from a heavy one before any data arrives.</p>
+      <section class="section">
+        <div class="card">
+          <label class="field-label" for="sport" style="margin-top:0;">Sport Or Activity</label>
+          <input class="field" id="sport" placeholder="Soccer" autocomplete="off" />
+          <label class="field-label" for="training-days">Training Days Per Week</label>
+          <input class="field" id="training-days" type="number" inputmode="numeric" min="0" max="14" placeholder="5" />
+          <p class="field-label" id="phase-label">Season Phase</p>
+          <div class="chips" id="phase-chips" role="group" aria-labelledby="phase-label"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 6. Sleep -->
+    <div class="step" data-step="5" hidden>
+      <h1 class="large-title">Your Nights</h1>
+      <p class="nav-sub">Your bedtime decides the caffeine zones, the last call, and what counts as a short night.</p>
+      <section class="section">
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <label class="field-label" for="bedtime" style="margin-top:0;">Typical Bedtime</label>
+              <input class="field" id="bedtime" type="time" />
+            </div>
+            <div>
+              <label class="field-label" for="waketime" style="margin-top:0;">Typical Wake Up</label>
+              <input class="field" id="waketime" type="time" />
+            </div>
+          </div>
+          <p class="field-label" id="goal-label">Sleep You Aim For</p>
+          <div class="chips" id="goal-chips" role="group" aria-labelledby="goal-label"></div>
+          <p class="footnote secondary" id="goal-note" style="margin-top:10px;"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 7. Usual levels -->
+    <div class="step" data-step="6" hidden>
+      <h1 class="large-title">Your Normal Week</h1>
+      <p class="nav-sub">This gives the Life channel a reference point from today, rather than a month from now.</p>
+      <section class="section">
+        <p class="footnote secondary" style="padding:0 4px 12px;">
+          Answer for an ordinary week rather than this one. Myaku compares later weeks against this starting point.
+        </p>
+        <div id="baselines"></div>
+      </section>
+    </div>
+
+    <!-- 8. Calendar -->
+    <div class="step" data-step="7" hidden>
+      <h1 class="large-title">Your Season</h1>
+      <p class="nav-sub">Import a calendar and Myaku can point at the weeks where everything lands at once.</p>
+      <section class="section">
+        <div class="card">
+          <label class="field-label" for="cal-url" style="margin-top:0;">Calendar Link</label>
+          <input class="field" id="cal-url" type="url" inputmode="url" placeholder="https://example.com/team.ics" />
+          <button class="btn btn-tinted btn-block" id="cal-import" style="margin-top:12px;">Import From Link</button>
+          <label class="field-label" for="cal-file">Or A File</label>
+          <input class="field" id="cal-file" type="file" accept=".ics,text/calendar" />
+          <p class="status-line" id="cal-status" aria-live="polite"></p>
+          <p class="footnote secondary" style="margin-top:10px;">
+            Most team and school calendars can be subscribed to as a link ending in .ics. You can do this later from Schedule.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 9. Reminders -->
+    <div class="step" data-step="8" hidden>
       <h1 class="large-title">Reminders That Respect You</h1>
       <p class="nav-sub">Consistency is what makes a real change stand out, and memory is unreliable.</p>
       <section class="section">
@@ -107,32 +194,13 @@
       </section>
     </div>
 
-    <!-- 5. Calibration -->
-    <div class="step" data-step="4" hidden>
-      <h1 class="large-title">A Little About You</h1>
-      <p class="nav-sub">This gives the Life channel a reference point from today, rather than a month from now.</p>
-      <section class="section">
-        <div class="card">
-          <label class="field-label" for="sport" style="margin-top:0;">Sport</label>
-          <input class="field" id="sport" placeholder="Soccer" autocomplete="off" />
-          <label class="field-label" for="training-days">Training Days Per Week</label>
-          <input class="field" id="training-days" type="number" inputmode="numeric" min="0" max="7" placeholder="5" />
-          <label class="field-label" for="bedtime">Typical Bedtime</label>
-          <input class="field" id="bedtime" type="time" />
-        </div>
-      </section>
-      <section class="section">
-        <div class="section-header">Usual Levels</div>
-        <div id="baselines"></div>
-      </section>
-    </div>
-
-    <!-- 6. First step -->
-    <div class="step" data-step="5" hidden>
+    <!-- 10. First step -->
+    <div class="step" data-step="9" hidden>
       <h1 class="large-title">You Are Set Up</h1>
       <p class="nav-sub">Pick one thing to start with. Each channel begins its own clock the first time you use it.</p>
       <section class="section">
-        <div class="option-list">
+        <div id="baseline-summary"></div>
+        <div class="option-list" style="margin-top:14px;">
           <a class="option" href="pvt.html">
             <span class="intro-dot" style="background:var(--ch-cog)" aria-hidden="true"></span>
             <span class="row-main"><span class="row-title">Take The Reaction Test</span><span class="row-sub">Three minutes. Best at the hour you would usually take it.</span></span>

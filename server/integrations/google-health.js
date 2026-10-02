@@ -80,6 +80,8 @@ async function refresh(cfg, refreshToken) {
 function civilDate(value) {
   if (!value) return null;
   if (typeof value === "string") return /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
+  // A civil date-time nests its date one level down.
+  if (typeof value === "object" && value.date) return civilDate(value.date);
   if (typeof value === "object" && value.year) {
     return `${value.year}-${String(value.month).padStart(2, "0")}-${String(value.day).padStart(2, "0")}`;
   }
@@ -119,6 +121,42 @@ function findDate(obj, keys, depth = 0) {
   return null;
 }
 
+/* A civil date and time, which carries no zone and so is already the athlete's
+   own wall clock. A UTC instant is deliberately not converted: without its offset
+   it would put the night in the wrong hours, and no time is better than a wrong one. */
+function civilStamp(value) {
+  if (!value) return null;
+  const pad = (n) => String(n).padStart(2, "0");
+  if (typeof value === "string") {
+    const m = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/.exec(value);
+    return m ? `${m[1]} ${m[2]}:${m[3]}` : null;
+  }
+  if (typeof value === "object") {
+    const date = civilDate(value);
+    const time = value.time || value;
+    if (!date || time.hours == null) return null;
+    return `${date} ${pad(time.hours)}:${pad(time.minutes || 0)}`;
+  }
+  return null;
+}
+
+function findStamp(obj, keys, depth = 0) {
+  if (!obj || typeof obj !== "object" || depth > 6) return null;
+  for (const key of keys) {
+    if (key in obj) {
+      const s = civilStamp(obj[key]);
+      if (s) return s;
+    }
+  }
+  for (const v of Object.values(obj)) {
+    if (v && typeof v === "object") {
+      const found = findStamp(v, keys, depth + 1);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 /* ---------------- mapping ---------------- */
 
 function mapGoogle({ sleep = [], restingHeartRate = [], heartRateVariability = [] }, since) {
@@ -133,7 +171,12 @@ function mapGoogle({ sleep = [], restingHeartRate = [], heartRateVariability = [
     let efficiency = findNumber(p, ["efficiency"]);
     if (efficiency == null && inBed) efficiency = Math.min(100, (minutes / inBed) * 100);
     const prev = nights[date];
-    if (!prev || minutes > prev.sleepMinutes) nights[date] = { date, sleepMinutes: minutes, sleepEfficiency: efficiency };
+    if (!prev || minutes > prev.sleepMinutes) {
+      nights[date] = {
+        date, sleepMinutes: minutes, sleepEfficiency: efficiency,
+        sleepStart: findStamp(p, ["civilStartTime"]), sleepEnd: findStamp(p, ["civilEndTime"]),
+      };
+    }
   });
 
   const rhr = restingHeartRate
@@ -184,5 +227,5 @@ module.exports = {
   id: "google",
   label: "Google Health",
   usesPkce: true,
-  config, authorizeUrl, exchange, refresh, sync, mapGoogle, civilDate, findNumber,
+  config, authorizeUrl, exchange, refresh, sync, mapGoogle, civilDate, civilStamp, findNumber,
 };

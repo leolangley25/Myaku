@@ -169,9 +169,13 @@ const Motion = (() => {
     if (!bar) return;
     let collapsed = false;
     const onScroll = () => {
+      const y = window.scrollY;
+      /* The glass background arrives the moment anything scrolls under the bar.
+         It used to arrive with the collapse at 56 pixels, which left a band where
+         content slid beneath a transparent title and the two overlapped. */
+      bar.classList.toggle("scrolled", y > 2);
       // Two thresholds rather than one, so a page resting near the boundary
       // does not flicker between states on every pixel of scroll.
-      const y = window.scrollY;
       if (!collapsed && y > 56) { collapsed = true; bar.classList.add("collapsed"); }
       else if (collapsed && y < 24) { collapsed = false; bar.classList.remove("collapsed"); }
     };

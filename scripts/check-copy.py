@@ -17,6 +17,9 @@ SMALL = {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or",
          "the", "to", "vs", "with"}
 # Tokens that are not really words for capitalisation purposes.
 SKIP_TOKEN = re.compile(r"^[\W\d]+$|^\d")
+# Unit symbols are written the way units are written, so "Under 30 mg" is a
+# correctly capitalised phrase rather than one with a lowercase word in it.
+UNITS = {"mg", "ms", "bpm", "kg", "h", "m"}
 
 
 def words(s):
@@ -39,7 +42,7 @@ def check(text, where, out):
             return  # a short sentence with punctuation is fine
         for i, w in enumerate(ws):
             core = w.strip("\"'()[[],·—–-")
-            if not core or SKIP_TOKEN.match(core):
+            if not core or SKIP_TOKEN.match(core) or core in UNITS:
                 continue
             if core[0].isupper():
                 continue

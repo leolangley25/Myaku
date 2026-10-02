@@ -8,6 +8,11 @@
     bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>',
     tune: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
     book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20"/></svg>',
+    /* Every row its own mark. Schedule shared About You's and Ask shared the
+       method's, so two pairs of rows looked like the same thing twice. */
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4.8" width="16" height="11.4" rx="2.6"/><path d="M8.4 16.2v3.4l4.2-3.4"/></svg>',
+    cite: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9.5 11h6M9.5 14.5h6M9.5 18h3.5"/></svg>',
   };
 
   let sensitivity = "medium";
@@ -15,9 +20,9 @@
   /* Each option is described by what it does, because "light" and "heavy" on
      their own could reasonably be read either direction. */
   const LEVELS = [
-    { id: "heavy", label: "Heavy", sub: "Flags smaller shifts, and after a single week." },
-    { id: "medium", label: "Medium", sub: "Balanced, and the setting most people should keep." },
-    { id: "light", label: "Light", sub: "Stays quiet until a divergence is large and sustained." },
+    { id: "heavy", label: "More Alerts", sub: "Speaks up after smaller changes, even a single week." },
+    { id: "medium", label: "Balanced", sub: "The setting most people should keep." },
+    { id: "light", label: "Fewer Alerts", sub: "Stays quiet until a change is large and has lasted." },
   ];
 
   const check = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:20px;height:20px;color:var(--primary)"><path d="M9.55 17.6 4 12.05l1.4-1.4 4.15 4.15 9.05-9.05L20 7.15z"/></svg>';
@@ -41,12 +46,24 @@
         sub: me.reminders.enabled ? (me.reminders.subscribed ? "On, and sent to this account's devices." : "On, but no device is set to receive them.") : "Off. Consistency is easier with a nudge.",
       }),
       M.row({
-        title: "Edit Calibration", href: "calibrate.html?from=more", icon: ICON.tune, tint: "var(--ch-psy)",
-        sub: me.calibration ? `Set for ${me.calibration.sport || "your sport"}.` : "Tell Myaku your usual levels.",
+        title: "About You", href: "calibrate.html?from=more", icon: ICON.tune, tint: "var(--ch-psy)",
+        sub: "Sport, training days, bedtime, and your usual levels.",
+      }),
+      M.row({
+        title: "Schedule", href: "schedule.html", icon: ICON.cal, tint: "var(--ch-psy)",
+        sub: "Import a season and see which weeks collide.",
+      }),
+      M.row({
+        title: "Ask Myaku", href: "ask.html", icon: ICON.chat, tint: "var(--primary)",
+        sub: me.user.assistant_opt_in ? "On, and answering from your own readings." : "Off. Questions about your readings, if you want them.",
       }),
       M.row({
         title: "How Myaku Works", href: "method.html", icon: ICON.book, tint: "var(--ch-cog)",
         sub: "The method, the thresholds, and the limits.",
+      }),
+      M.row({
+        title: "Works Cited", href: "references.html", icon: ICON.cite, tint: "var(--ch-cog)",
+        sub: "Every study behind the app, with links to the originals.",
       }),
     ].join("");
   }

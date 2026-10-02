@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Caffeine</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,14 +14,14 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <div class="screen">
     <header class="nav-large">
       <h1 class="large-title">Caffeine</h1>
-      <p class="nav-sub">How much is still in you, and when it clears before bed.</p>
+      <p class="nav-sub">How much is in you through the day, and how much is left when you sleep.</p>
     </header>
 
     <section class="section">
@@ -31,21 +30,70 @@
           <div>
             <div class="card-title">In Your System Now</div>
             <div class="stat"><span class="stat-value" id="now-mg">0</span><span class="stat-unit">mg</span></div>
+            <p class="footnote secondary" id="now-sub"></p>
           </div>
           <div style="text-align:right;">
             <div class="card-title">Today's Total</div>
             <div class="stat" style="justify-content:flex-end;"><span class="stat-value" id="total-mg">0</span><span class="stat-unit">mg</span></div>
+            <p class="footnote secondary" id="total-sub"></p>
           </div>
         </div>
-        <div id="decay" style="height:150px;margin-top:16px;"></div>
-        <p class="footnote secondary" style="margin-top:10px;" id="bed-note"></p>
+
+        <div class="curve-readout" id="readout"></div>
+        <div class="curve" id="curve" tabindex="0" role="slider" aria-label="Caffeine Through The Day"></div>
+
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--orange);"></span>Today</span>
+          <span class="legend-item" id="usual-legend" hidden><span class="legend-swatch dashed"></span>Your Usual Day</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--green);"></span>Clear</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--orange);"></span>Borderline</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--red);"></span>High</span>
+        </div>
+
+        <div class="checkpoints" id="checkpoints"></div>
+
+        <div class="bedtime-row">
+          <label class="field-label" for="bedtime">Bedtime</label>
+          <input class="field" id="bedtime" type="time" />
+        </div>
+        <p class="footnote secondary" style="margin-top:10px;">The shaded hours are eight hours of sleep from your bedtime. Drag across the chart to read any time.</p>
+
+        <details class="howto">
+          <summary>Hour By Hour</summary>
+          <div class="howto-body" id="hourly"></div>
+        </details>
       </div>
     </section>
 
     <section class="section">
-      <div class="section-header">Quick Add</div>
+      <div class="section-header">At Bedtime</div>
       <div class="card">
-        <div class="chips" id="presets"></div>
+        <div class="spread">
+          <div class="stat"><span class="stat-value" id="bed-mg">0</span><span class="stat-unit">mg</span></div>
+          <span id="bed-zone"></span>
+        </div>
+        <p class="body" id="bed-sentence" style="margin-top:10px;"></p>
+        <p class="footnote secondary" id="bed-clears" style="margin-top:8px;"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Last Call</div>
+      <div class="group" id="last-call"></div>
+      <p class="footnote secondary" id="last-call-note" style="margin-top:10px;padding:0 4px;"></p>
+    </section>
+
+    <section class="section">
+      <div class="section-header" id="add-header">Quick Add</div>
+      <div class="card">
+        <p class="field-label" id="when-label" style="margin-top:0;">When You Had It</p>
+        <div class="chips" id="when-chips" role="group" aria-labelledby="when-label"></div>
+        <div class="bedtime-row" style="margin-top:10px;">
+          <label class="field-label" for="when-time">Another Time</label>
+          <input class="field" id="when-time" type="time" />
+        </div>
+        <p class="footnote secondary" id="when-note" style="margin-top:10px;"></p>
+        <div class="chips" id="presets" style="margin-top:16px;"></div>
       </div>
     </section>
 
@@ -56,6 +104,7 @@
         <input class="field" id="custom-label" placeholder="Cold Brew" style="background:var(--fill-2);" />
         <label class="field-label" for="custom-mg">Milligrams</label>
         <input class="field" id="custom-mg" type="number" inputmode="numeric" placeholder="120" style="background:var(--fill-2);" />
+        <p class="footnote secondary" id="custom-when" style="margin-top:8px;"></p>
         <button class="btn btn-tinted btn-block" id="custom-add" style="margin-top:16px;">Add</button>
       </div>
     </section>
@@ -65,9 +114,73 @@
       <div class="group" id="entries"></div>
     </section>
 
+    <section class="section" id="recent" hidden>
+      <div class="section-header">Your Last Two Weeks</div>
+      <div class="tiles" id="recent-tiles"></div>
+    </section>
+
+    <section class="section" id="personal" hidden>
+      <div class="section-header">Your Nights</div>
+      <div id="personal-body"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">What Affects Sleep</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;">
+          <span class="zone-dot" style="background:var(--green);margin-top:6px;" aria-hidden="true"></span>
+          <span class="row-main">
+            <span class="row-title">Clear</span>
+            <span class="row-sub">Timing advice from a 2023 review of 24 studies lands near this level, such as a coffee nine hours before bed.</span>
+          </span>
+          <span class="row-value">Under 30 mg</span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="zone-dot" style="background:var(--orange);margin-top:6px;" aria-hidden="true"></span>
+          <span class="row-main">
+            <span class="row-title">Borderline</span>
+            <span class="row-sub">Results are mixed here. In a 2025 trial with young men, 100 mg four hours before bed made no measurable difference.</span>
+          </span>
+          <span class="row-value">30 To 75 mg</span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="zone-dot" style="background:var(--red);margin-top:6px;" aria-hidden="true"></span>
+          <span class="row-main">
+            <span class="row-title">High</span>
+            <span class="row-sub">In the same trial, 400 mg twelve hours before bed still cut about 20 minutes of deep sleep.</span>
+          </span>
+          <span class="row-value">Over 75 mg</span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">You May Not Notice</span>
+            <span class="row-sub">In a 2013 study, 400 mg six hours before bed cost more than an hour of sleep, and people did not report it.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">About Five Hours</span>
+            <span class="row-sub">Half of a drink is usually gone in about five hours, but it ranges from three to seven, so every time here is an estimate.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Daily Amount</span>
+            <span class="row-sub">Up to 400 mg a day is the common limit for healthy adults, and pediatric guidance is 100 mg for ages 12 to 18.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Based on a <a href="https://pubmed.ncbi.nlm.nih.gov/36870101/" target="_blank" rel="noopener">2023 review</a>, a
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11985402/" target="_blank" rel="noopener">2025 trial</a>, and a
+        <a href="https://pubmed.ncbi.nlm.nih.gov/24235903/" target="_blank" rel="noopener">2013 study</a>. The zones are this
+        app's estimate from those studies, not a medical cutoff.
+      </p>
+    </section>
+
     <section class="section" id="signin-prompt" hidden>
       <div class="card">
-        <p class="callout">This page works without an account, though nothing is saved until you sign in.</p>
+        <p class="callout">This page works without an account. Sign in to save drinks and compare them with your own sleep.</p>
         <a class="btn btn-filled btn-block" href="login.html" style="margin-top:14px;">Sign In</a>
       </div>
     </section>

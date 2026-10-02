@@ -31,6 +31,9 @@ test("Apple Health: a night split across midnight is one night, and sources are 
   assert.equal(r.rhr, 52);
   assert.equal(r.sleepMinutes, 435);
   assert.ok(Math.abs(r.sleepEfficiency - 90.625) < 1e-9);
+  // The night runs from the first asleep segment to the last, on the wall clock.
+  assert.equal(r.sleepStart, "2026-09-01 23:20");
+  assert.equal(r.sleepEnd, "2026-09-02 06:40");
 });
 
 test("Apple Health: timestamps keep the wall clock, and late segments join the next morning", () => {
@@ -46,7 +49,7 @@ test("Whoop: naps and unscored sleeps are excluded, and recovery joins its sleep
   const rows = whoop.mapWhoop(
     [
       {
-        id: "s1", nap: false, score_state: "SCORED", end: "2026-09-02T12:00:00.000Z", timezone_offset: "-05:00",
+        id: "s1", nap: false, score_state: "SCORED", start: "2026-09-02T04:30:00.000Z", end: "2026-09-02T12:00:00.000Z", timezone_offset: "-05:00",
         score: {
           stage_summary: { total_light_sleep_time_milli: 4 * hour, total_slow_wave_sleep_time_milli: 1.5 * hour, total_rem_sleep_time_milli: 1.5 * hour },
           sleep_efficiency_percentage: 91,
@@ -57,7 +60,10 @@ test("Whoop: naps and unscored sleeps are excluded, and recovery joins its sleep
     ],
     [{ sleep_id: "s1", score_state: "SCORED", created_at: "2026-09-02T12:30:00.000Z", score: { hrv_rmssd_milli: 72.5, resting_heart_rate: 50 } }]
   );
-  assert.deepEqual(rows, [{ date: "2026-09-02", sleepMinutes: 420, sleepEfficiency: 91, hrv: 72.5, rhr: 50 }]);
+  assert.deepEqual(rows, [{
+    date: "2026-09-02", sleepMinutes: 420, sleepEfficiency: 91, hrv: 72.5, rhr: 50,
+    sleepStart: "2026-09-01 23:30", sleepEnd: "2026-09-02 07:00",
+  }]);
 });
 
 test("Whoop: the local date uses the offset supplied with each record", () => {
@@ -84,6 +90,28 @@ test("Google Health: nested payloads and both date shapes are read, and older da
   assert.ok(Math.abs(rows[0].sleepEfficiency - 88.888) < 0.01);
   assert.equal(rows[0].rhr, 54);
   assert.equal(rows[0].hrv, 61);
+});
+
+test("Google Health: civil start and end times give a night its schedule, and UTC instants are not guessed at", () => {
+  const rows = google.mapGoogle({
+    sleep: [
+      {
+        sleep: {
+          interval: {
+            civilStartTime: { date: { year: 2026, month: 9, day: 1 }, time: { hours: 23, minutes: 15 } },
+            civilEndTime: "2026-09-02T06:45:00",
+          },
+          summary: { minutesAsleep: 420, minutesInBed: 450 },
+        },
+      },
+      { sleep: { interval: { startTime: "2026-09-03T04:00:00Z", civilEndTime: { year: 2026, month: 9, day: 3 } }, summary: { minutesAsleep: 400 } } },
+    ],
+  });
+  assert.equal(rows[0].date, "2026-09-02");
+  assert.equal(rows[0].sleepStart, "2026-09-01 23:15");
+  assert.equal(rows[0].sleepEnd, "2026-09-02 06:45");
+  assert.equal(rows[1].date, "2026-09-03");
+  assert.equal(rows[1].sleepStart, undefined);
 });
 
 test("merging never overwrites a value with nothing, and implausible rows are caught", () => {

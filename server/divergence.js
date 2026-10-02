@@ -17,6 +17,8 @@
    of drift or only wants to hear about a problem that is already large.
    Gaps always sit above the channel bar, because the difference of two noisy
    numbers is noisier than either one. */
+const { heaviness } = require("./reader");
+
 const SENSITIVITY = {
   light: { notable: 1.5, marked: 2.2, gap: 2.0, persistence: 3 },
   medium: { notable: 1.0, marked: 1.5, gap: 1.4, persistence: 2 },
@@ -27,6 +29,7 @@ const DEFAULT_SENSITIVITY = "medium";
 const MIN_BASELINE_WEEKS = 3;
 const CLAMP = 3;
 const MIN_SCALE_FRACTION = 0.04; // floor on the spread, as a share of the median
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function weekStart(dateStr) {
   const d = new Date(dateStr + "T00:00:00Z");
@@ -69,15 +72,39 @@ function clamp(z) {
   return Math.max(-CLAMP, Math.min(CLAMP, z));
 }
 
-/* Group rows into weekly buckets keyed by the Monday of their week. */
-function bucket(rows, dateKey, valueFn) {
+/* Seven-day windows counted back from the anchor day, keyed by the first day of
+   each window, so "this week" always means the last seven days. Calendar weeks
+   made a Monday reading one day of data judged against full weeks, which is noise
+   dressed up as a finding. Days after the anchor are left out. */
+function windowStart(dateStr, anchor) {
+  const d = Date.parse(String(dateStr).slice(0, 10) + "T00:00:00Z");
+  const a = Date.parse(anchor + "T00:00:00Z");
+  if (Number.isNaN(d) || Number.isNaN(a) || d > a) return null;
+  const back = Math.floor((a - d) / (7 * DAY_MS));
+  return new Date(a - (back * 7 + 6) * DAY_MS).toISOString().slice(0, 10);
+}
+
+/* A weekly reflection describes the seven days from its Monday, so it is placed on
+   the last of those days, or on the anchor day for a week still in progress. Placed
+   on the Monday, last week's reflection would fall out of the current seven-day
+   window on every day but one. */
+function reflectionDate(weekStartStr, anchor) {
+  if (!anchor) return weekStartStr;
+  const end = new Date(Date.parse(String(weekStartStr).slice(0, 10) + "T00:00:00Z") + 6 * DAY_MS).toISOString().slice(0, 10);
+  return end < anchor ? end : anchor;
+}
+
+/* Group rows into seven-day buckets. Without an anchor they fall back to calendar
+   weeks, which only happens when there is no data to anchor on. */
+function bucket(rows, dateKey, valueFn, anchor) {
   const out = {};
   rows.forEach((r) => {
     const d = r[dateKey];
     if (!d) return;
     const v = valueFn(r);
     if (v == null || Number.isNaN(v)) return;
-    const wk = weekStart(String(d).slice(0, 10));
+    const wk = anchor ? windowStart(d, anchor) : weekStart(String(d).slice(0, 10));
+    if (!wk) return;
     (out[wk] = out[wk] || []).push(v);
   });
   return out;
@@ -108,52 +135,72 @@ function channelFromSeries(seriesList, invert) {
 
 /* Combine several oriented sub-series into one channel by averaging the z of
    each component week by week. */
-function combine(components) {
+function combine(components, weights = components.map(() => 1)) {
   const weeks = new Set();
   components.forEach((c) => c.points.forEach((p) => weeks.add(p.week)));
   const ordered = [...weeks].sort();
   const points = ordered.map((wk) => {
-    const zs = components
-      .map((c) => (c.points.find((p) => p.week === wk) || {}).z)
-      .filter((z) => z != null);
-    return { week: wk, z: zs.length ? mean(zs) : null };
+    let sum = 0;
+    let total = 0;
+    components.forEach((c, i) => {
+      const z = (c.points.find((p) => p.week === wk) || {}).z;
+      if (z != null) {
+        sum += z * weights[i];
+        total += weights[i];
+      }
+    });
+    return { week: wk, z: total ? sum / total : null };
   });
   const last = points.length ? points[points.length - 1].z : null;
   const usable = points.filter((p) => p.z != null).length;
   return { z: last, weeks: usable, points };
 }
 
-/* ---------------- channels ---------------- */
-
-function autonomicChannel(metrics) {
-  const specs = [
-    { key: "hrv_ms", invert: true },        // lower HRV is worse
-    { key: "rhr_bpm", invert: false },      // higher resting heart rate is worse
-    { key: "sleep_minutes", invert: true },
-    { key: "sleep_efficiency", invert: true },
-  ];
-  const parts = specs
-    .map((s) => channelFromSeries(series(bucket(metrics, "date", (r) => r[s.key])), s.invert))
-    .filter((c) => c.points.length);
-  return parts.length ? combine(parts) : { z: null, weeks: 0, points: [] };
+/* A channel built from named parts, keeping each part's own deviation for the week
+   the channel reports. A channel page can then say which part is moving it rather
+   than only that it has moved. A part with no data is reported as null. */
+function channelFrom(parts) {
+  const built = parts.filter((p) => p.channel.points.length);
+  if (!built.length) return { z: null, weeks: 0, points: [], parts: Object.fromEntries(parts.map((p) => [p.key, null])) };
+  const combined = combine(built.map((b) => b.channel), built.map((b) => b.weight || 1));
+  const lastWeek = combined.points.length ? combined.points[combined.points.length - 1].week : null;
+  combined.parts = Object.fromEntries(
+    parts.map((p) => [p.key, (p.channel.points.find((q) => q.week === lastWeek) || {}).z ?? null])
+  );
+  return combined;
 }
 
-function cognitiveChannel(sessions) {
+/* ---------------- channels ---------------- */
+
+function autonomicChannel(metrics, anchor) {
+  const from = (key, invert) => channelFromSeries(series(bucket(metrics, "date", (r) => r[key], anchor)), invert);
+  return channelFrom([
+    { key: "hrv_ms", channel: from("hrv_ms", true) },          // lower HRV is worse
+    { key: "rhr_bpm", channel: from("rhr_bpm", false) },       // higher resting heart rate is worse
+    { key: "sleep_minutes", channel: from("sleep_minutes", true) },
+    { key: "sleep_efficiency", channel: from("sleep_efficiency", true) },
+  ]);
+}
+
+/* Response speed counts twice as much as lapses. On a three-minute test, lapse
+   counts agree poorly with the ten-minute laboratory version while speed agrees
+   better, so the steadier measure gets the larger say. */
+function cognitiveChannel(sessions, anchor) {
   const valid = sessions.filter((s) => s.valid);
-  const lapses = channelFromSeries(series(bucket(valid, "date", (r) => r.lapses)), false);
-  // Reciprocal reaction time rises as someone gets faster, so it inverts.
-  const speed = channelFromSeries(series(bucket(valid, "date", (r) => r.mean_reciprocal)), true);
-  const parts = [lapses, speed].filter((c) => c.points.length);
-  return parts.length ? combine(parts) : { z: null, weeks: 0, points: [] };
+  return channelFrom([
+    // Reciprocal reaction time rises as someone gets faster, so it inverts.
+    { key: "speed", weight: 2, channel: channelFromSeries(series(bucket(valid, "date", (r) => r.mean_reciprocal, anchor)), true) },
+    { key: "lapses", weight: 1, channel: channelFromSeries(series(bucket(valid, "date", (r) => r.lapses, anchor)), false) },
+  ]);
 }
 
 /* Channel P is the widest of the three, because self-report is the only one of
    the three that can cover a life rather than a body. Each component is z-scored
    against its own history before they are averaged, so a component that only
    starts existing partway through does not distort the weeks before it. */
-function psychologicalChannel(daily, weekly, journal) {
+function psychologicalChannel(daily, weekly, journal, anchor) {
   const fromDaily = (key, invert) =>
-    channelFromSeries(series(bucket(daily, "date", (r) => r[key])), invert);
+    channelFromSeries(series(bucket(daily, "date", (r) => r[key], anchor)), invert);
 
   const load = fromDaily("load_0_10", false);
   const recovery = fromDaily("recovery_0_10", true);
@@ -163,18 +210,19 @@ function psychologicalChannel(daily, weekly, journal) {
 
   /* Reported affect pools the daily grid and any journal entry the person chose
      to rate. Both are the same instrument answered on the same square, so they
-     belong in the same bucket rather than in two competing components. Journal
-     text is never read; only a rating the person typed themselves counts. */
+     belong in the same bucket rather than in two competing components. What a
+     model read from the writing is a different instrument and gets its own part
+     below. */
   const affectRows = [
     ...daily.map((r) => ({ date: r.date, valence: r.valence })),
     ...journal.map((j) => ({ date: j.entry_date, valence: j.valence })),
   ];
-  const affect = channelFromSeries(series(bucket(affectRows, "date", (r) => r.valence)), true);
+  const affect = channelFromSeries(series(bucket(affectRows, "date", (r) => r.valence, anchor)), true);
 
   // Strain is demand weighted by how little say the person had over it, which
   // is why two athletes with identical schedules end up in different states.
   const strainRows = weekly.map((w) => ({
-    date: w.week_start,
+    date: reflectionDate(w.week_start, anchor),
     strain: mean(
       ["training", "academic", "personal"]
         .map((d) => {
@@ -187,7 +235,7 @@ function psychologicalChannel(daily, weekly, journal) {
         .filter((v) => v != null)
     ),
   }));
-  const strain = channelFromSeries(series(bucket(strainRows, "date", (r) => r.strain)), false);
+  const strain = channelFromSeries(series(bucket(strainRows, "date", (r) => r.strain, anchor)), false);
 
   /* The three burnout dimensions summed, with accomplishment flipped so that
      every term points the same way. Kept as one component rather than three so
@@ -199,22 +247,50 @@ function psychologicalChannel(daily, weekly, journal) {
       w.abq_accomplishment == null ? null : 6 - w.abq_accomplishment,
       w.abq_devaluation,
     ].filter((v) => v != null);
-    return { date: w.week_start, burnout: parts.length ? mean(parts) : null };
+    return { date: reflectionDate(w.week_start, anchor), burnout: parts.length ? mean(parts) : null };
   });
-  const burnout = channelFromSeries(series(bucket(burnoutRows, "date", (r) => r.burnout)), false);
+  const burnout = channelFromSeries(series(bucket(burnoutRows, "date", (r) => r.burnout, anchor)), false);
 
-  const parts = [load, recovery, control, focus, motivation, affect, strain, burnout]
-    .filter((c) => c.points.length);
-  return parts.length ? combine(parts) : { z: null, weeks: 0, points: [] };
+  /* Relatedness, the need that sits beside say (autonomy) and accomplishment
+     (competence) in self-determination research, where unmet needs are linked
+     with athlete burnout (Li and colleagues, 2013). Feeling alone is the one this
+     channel was not reading. Already asked weekly. */
+  const connectionRows = weekly
+    .filter((w) => w.social_connection != null)
+    .map((w) => ({ date: reflectionDate(w.week_start, anchor), connection: w.social_connection }));
+  const connection = channelFromSeries(series(bucket(connectionRows, "date", (r) => r.connection, anchor)), true);
+
+  /* How heavy the athlete's own writing reads, when they let a model on their
+     machine read it. Weighted at half the parts they answer directly, because
+     model readings of daily diaries track the same person's day-to-day changes
+     only weakly, around r = .28. It is still worth having: it lets a day they
+     wrote about count without asking them anything extra. */
+  const writingRows = journal
+    .filter((j) => j.reading)
+    .map((j) => ({ date: j.entry_date, heaviness: heaviness(j.reading) }));
+  const writing = channelFromSeries(series(bucket(writingRows, "date", (r) => r.heaviness, anchor)), false);
+
+  return channelFrom([
+    { key: "load", channel: load },
+    { key: "control", channel: control },
+    { key: "recovery", channel: recovery },
+    { key: "focus", channel: focus },
+    { key: "motivation", channel: motivation },
+    { key: "mood", channel: affect },
+    { key: "strain", channel: strain },
+    { key: "burnout", channel: burnout },
+    { key: "connection", channel: connection },
+    { key: "writing", weight: 0.5, channel: writing },
+  ]);
 }
 
 /* The fourth gap, and the only one that is not between two channels. Measured
    sleep efficiency against how the night was rated the next morning. It sits
    outside the channel model on purpose: both halves describe the same night, so
    the interesting quantity is the disagreement, not either number. */
-function sleepPerceptionGap(daily, metrics) {
-  const rated = channelFromSeries(series(bucket(daily, "date", (r) => r.sleep_quality_0_10)), true);
-  const measured = channelFromSeries(series(bucket(metrics, "date", (r) => r.sleep_efficiency)), true);
+function sleepPerceptionGap(daily, metrics, anchor) {
+  const rated = channelFromSeries(series(bucket(daily, "date", (r) => r.sleep_quality_0_10, anchor)), true);
+  const measured = channelFromSeries(series(bucket(metrics, "date", (r) => r.sleep_efficiency, anchor)), true);
   if (rated.z == null || measured.z == null) return null;
   return rated.z - measured.z;
 }
@@ -364,18 +440,26 @@ function describeState(state, psych, cfg) {
 
 /* ---------------- entry point ---------------- */
 
-function compute({ metrics = [], sessions = [], daily = [], weekly = [], journal = [], sensitivity }) {
+function compute({ metrics = [], sessions = [], daily = [], weekly = [], journal = [], sensitivity, today }) {
   const cfg = SENSITIVITY[sensitivity] || SENSITIVITY[DEFAULT_SENSITIVITY];
 
-  const a = autonomicChannel(metrics);
-  const c = cognitiveChannel(sessions);
-  const p = psychologicalChannel(daily, weekly, journal);
+  /* The day the seven-day windows count back from: the athlete's own today when
+     the caller knows it, otherwise the latest day anything was recorded. */
+  const latest = [
+    ...metrics.map((r) => r.date), ...sessions.map((r) => r.date), ...daily.map((r) => r.date),
+    ...weekly.map((r) => r.week_start), ...journal.map((r) => r.entry_date),
+  ].filter(Boolean).map((d) => String(d).slice(0, 10)).sort().pop() || null;
+  const anchor = /^\d{4}-\d{2}-\d{2}$/.test(today || "") ? today : latest;
+
+  const a = autonomicChannel(metrics, anchor);
+  const c = cognitiveChannel(sessions, anchor);
+  const p = psychologicalChannel(daily, weekly, journal, anchor);
 
   const gaps = {
     cognitiveVsAutonomic: c.z != null && a.z != null ? c.z - a.z : null,
     psychologicalVsAutonomic: p.z != null && a.z != null ? p.z - a.z : null,
     cognitiveVsPsychological: c.z != null && p.z != null ? c.z - p.z : null,
-    sleepFeltVsMeasured: sleepPerceptionGap(daily, metrics),
+    sleepFeltVsMeasured: sleepPerceptionGap(daily, metrics, anchor),
   };
 
   const readings = [
@@ -393,10 +477,11 @@ function compute({ metrics = [], sessions = [], daily = [], weekly = [], journal
 
   return {
     channels: {
-      autonomic: { z: a.z, weeks: a.weeks, points: a.points },
-      cognitive: { z: c.z, weeks: c.weeks, points: c.points },
-      psychological: { z: p.z, weeks: p.weeks, points: p.points },
+      autonomic: { z: a.z, weeks: a.weeks, points: a.points, parts: a.parts || {} },
+      cognitive: { z: c.z, weeks: c.weeks, points: c.points, parts: c.parts || {} },
+      psychological: { z: p.z, weeks: p.weeks, points: p.points, parts: p.parts || {} },
     },
+    anchor,
     gaps,
     readings,
     state:
@@ -414,4 +499,4 @@ function compute({ metrics = [], sessions = [], daily = [], weekly = [], journal
   };
 }
 
-module.exports = { compute, weekStart, SENSITIVITY, DEFAULT_SENSITIVITY, PLAIN_STATES, MIN_BASELINE_WEEKS };
+module.exports = { compute, weekStart, windowStart, SENSITIVITY, DEFAULT_SENSITIVITY, PLAIN_STATES, MIN_BASELINE_WEEKS };

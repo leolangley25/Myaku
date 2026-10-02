@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Trends</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,21 +14,82 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <div class="screen">
     <header class="nav-large">
+      <div class="eyebrow">Across Channels</div>
       <h1 class="large-title">Trends</h1>
-      <p class="nav-sub" id="sub">Loading your history.</p>
+      <p class="nav-sub" id="sub">Loading your season.</p>
     </header>
 
-    <section class="section" style="margin-top:18px;">
-      <div class="segmented" id="tabs"></div>
+    <div id="view"><div class="loader"></div></div>
+
+    <section class="section">
+      <div class="section-header">Go Deeper</div>
+      <div class="group">
+        <a class="row" href="body.html">
+          <span class="row-icon" aria-hidden="true" style="color:var(--ch-auto)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg></span>
+          <span class="row-main">
+            <span class="row-title">Body</span>
+            <span class="row-sub">Sleep schedule, heart rate variability, and the nights after hard days.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+        <a class="row" href="brain.html">
+          <span class="row-icon" aria-hidden="true" style="color:var(--ch-cog)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg></span>
+          <span class="row-main">
+            <span class="row-title">Brain</span>
+            <span class="row-sub">Every reaction test, caffeine before tests, and felt against measured sharpness.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+        <a class="row" href="life.html">
+          <span class="row-icon" aria-hidden="true" style="color:var(--ch-psy)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg></span>
+          <span class="row-main">
+            <span class="row-title">Life</span>
+            <span class="row-sub">Demand against your say, mood, burnout signs, and heavy day patterns.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+      </div>
     </section>
 
-    <div id="view"></div>
+    <section class="section" data-fold>
+      <div class="section-header">Reading This Page</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Weeks Read Honestly</span>
+            <span class="row-sub">Each past week is read using only the data that existed by its last day, so the timeline is never rewritten with hindsight.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Patterns Are Not Causes</span>
+            <span class="row-sub">A busy week can move two measures at once, so two lines moving together here never proves one caused the other.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Searches Always Find Something</span>
+            <span class="row-sub">Scanning many delays at once turns up a strongest match even in pure noise, which is why that card is labelled exploratory.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">A Contested Ratio</span>
+            <span class="row-sub">The 0.8 to 1.3 workload range comes from injury research that has since been strongly challenged, and it was never tested on how heavy days feel.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        The workload range comes from a <a href="https://pubmed.ncbi.nlm.nih.gov/26758673/" target="_blank" rel="noopener">2016 review</a>
+        and is critiqued in a <a href="https://journals.humankinetics.com/view/journals/ijspp/15/6/article-p907.xml" target="_blank" rel="noopener">2020 analysis</a>.
+      </p>
+    </section>
 
     <section class="section">
       <div class="card">
@@ -47,10 +107,6 @@
           <span class="footnote secondary" style="flex:1;">One question written down before any data existed. Exactly one card in this app carries this label.</span>
         </div>
       </div>
-      <p class="footnote secondary" style="margin-top:12px;padding:0 4px;">
-        Everything on this page describes your own history against itself. None of it is a diagnosis,
-        and none of it compares you to anybody else.
-      </p>
       <a class="btn btn-gray btn-block" href="method.html" style="margin-top:14px;">How Myaku Works</a>
     </section>
 
@@ -60,7 +116,7 @@
   <script src="js/motion.js"></script>
   <script src="js/explain.js"></script>
   <script src="js/core.js"></script>
-  <script src="js/charts.js"></script>
+  <script src="js/channel.js"></script>
   <script src="js/trends.js"></script>
 </body>
 </html>

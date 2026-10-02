@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — How It Works</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -35,8 +34,10 @@
       <div class="section-header">What Normal Means</div>
       <div class="card prose">
         <p>Every reading is compared against your own history, never against other people. Your normal is the middle of your recent weeks, and the spread around it is measured in a way that one strange night cannot distort.</p>
+        <p>A week here always means the last seven days, counted back from today, so a Monday is never judged on a single day of data.</p>
         <p>A channel needs three earlier weeks before this week can be compared against them. That is why nothing is named during your first few weeks, even though your raw readings show from the first day.</p>
         <p>A very consistent athlete has a small spread, and against a small spread any wobble can look dramatic. Myaku puts a floor under the spread so that being reliable is never mistaken for being unwell.</p>
+        <p>The Body and Brain pages also show a usual range for single measures, like heart rate variability or one reaction test. Those ranges are deliberately more sensitive than the channel, so a measure can leave its range a week or two before its channel moves.</p>
       </div>
     </section>
 
@@ -60,7 +61,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="patterns">
       <div class="section-header">The Seven Patterns</div>
       <div class="group" id="states"></div>
     </section>
@@ -70,6 +71,24 @@
       <div class="card prose">
         <p>A gap compares two channels against each other instead of against your normal. When they agree there is nothing to report, and when they pull apart the direction of the gap says which one is ahead.</p>
         <p>A gap carries the noise of both channels at once, so it has to move further than either channel alone before it counts.</p>
+      </div>
+    </section>
+
+    <section class="section" id="labels">
+      <div class="section-header">What The Labels Mean</div>
+      <div class="card">
+        <div class="hstack" style="align-items:flex-start;gap:12px;margin-bottom:12px;">
+          <span class="badge badge-describe">Description</span>
+          <span class="footnote secondary" style="flex:1;">What happened. No claim about why, so nothing labelled this way can be wrong about causes.</span>
+        </div>
+        <div class="hstack" style="align-items:flex-start;gap:12px;margin-bottom:12px;">
+          <span class="badge badge-explore">Exploratory</span>
+          <span class="footnote secondary" style="flex:1;">A search across many possibilities. Something always wins, including in pure noise, so it is a place to look rather than a result.</span>
+        </div>
+        <div class="hstack" style="align-items:flex-start;gap:12px;">
+          <span class="badge badge-test">Pre-Registered Test</span>
+          <span class="footnote secondary" style="flex:1;">One question written down before any data existed. Exactly one card in this app carries this label.</span>
+        </div>
       </div>
     </section>
 
@@ -97,9 +116,50 @@
           <span class="row-sub">Apple Watch measures heart rate variability differently from Whoop and Fitbit, so switching devices can look like a change in you.</span>
         </span></div>
         <div class="row" style="align-items:flex-start;"><span class="row-main">
-          <span class="row-title">Early Tests Improve</span>
-          <span class="row-sub">Reaction time often gets faster over the first few sessions as you learn the task, so your first weeks can look better than they are.</span>
+          <span class="row-title">Short Test Limits</span>
+          <span class="row-sub">The three-minute test tracks the longer laboratory version only loosely, so single tests are never judged and response speed counts more than lapses.</span>
         </span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">The Assistant</div>
+      <div class="card prose">
+        <p>You can ask questions about your own readings from the Ask page. The assistant is handed a summary built by the same functions these pages draw from, and it is told to answer only from that summary and to say when something is not in it.</p>
+        <p>It is off until you turn it on. When a model is running on this machine, the summary is answered there and never leaves the device. When there is none, the summary goes to Anthropic, the company that makes the model. The Ask page always says which of the two is about to happen before you agree to anything, and your journal text, your name and your email are never included either way.</p>
+        <p>It is a language model reading a summary, so it can be wrong. Anything surprising is worth checking against the page it came from.</p>
+      </div>
+    </section>
+
+    <section class="section" id="journal">
+      <div class="section-header">The Journal</div>
+      <div class="card prose">
+        <p>Before your first entry you choose how much of the journal counts toward your Life channel. Separate keeps it out entirely. Rating Only lets the grid you set under an entry join your check-ins, and the words are never read. Read It also lets a model running on your own computer read each entry.</p>
+        <p>When reading is on, the entry goes from this app to a model served on the same machine through Ollama, and nowhere else. There is no online fallback, so when no model is running an entry waits until one is. The model is asked for the same things a check-in asks: how the day felt, how much was being asked of you, whether it was your call, what it was about, and whether exhaustion, caring less, or not getting anywhere came up. Answers come back as words rather than numbers, because small models place a word like heavy far more consistently than a number on a scale.</p>
+        <p>You see exactly what was taken from every entry and can change any part of it, or leave the entry out. In a 2026 study of brief daily diaries, a model's readings agreed with what people reported at about .42 across people but only about .28 from one day to the next for the same person, so your writing counts for half as much as each part you answer directly. It is still worth having: it lets a day you wrote about count without asking you a single extra question, and longer questionnaires, not more frequent ones, are what wear people down.</p>
+        <p>Each prompt comes from a study, and each one says what it is for.</p>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th scope="col">Prompt</th><th scope="col">Where It Comes From</th></tr></thead>
+            <tbody>
+              <tr><td>Get It Out</td><td>Pennebaker's expressive writing. Fifteen minutes on a few days. Pooled across 146 randomised trials the average effect is small, and people often feel worse straight afterwards before improving over two to four weeks.</td></tr>
+              <tr><td>Step Outside It</td><td>Self-distanced reflection. Writing about yourself in the third person lowers distress and later rumination compared with writing from inside the experience.</td></tr>
+              <tr><td>Three Good Things</td><td>Seligman, 2005. A week of it raised wellbeing six months later. Suggested weekly rather than nightly, because gratitude goes flat when it is daily.</td></tr>
+              <tr><td>After The Session</td><td>Structured post-event reflection, standard practice in sport psychology, and associated with better self-evaluation than free recall.</td></tr>
+              <tr><td>Tomorrow's List</td><td>Scullin, 2018. Writing a specific to-do list before bed preceded falling asleep about nine minutes faster than writing about finished tasks.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>None of the prompts ask why you feel a certain way, or what is wrong with you. Those questions sit on the rumination scale itself and predict feeling worse rather than better.</p>
+        <p>If several hard entries land on low days in the same week, the page says so and points at a different prompt and at a person. That is a description of a pattern in your own writing, not a judgement about you, and nothing is ever blocked.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Your Schedule</div>
+      <div class="card prose">
+        <p>If you import a calendar, Myaku sorts each entry into a game, a practice, a lift, travel, an exam, a deadline, or a class, and weighs the week ahead by what those usually cost a night.</p>
+        <p>A week is called busy when it is heavy in itself and heavier than your own ordinary week. Those weights are reasoned choices rather than values proven in a study, and nothing about your schedule changes how a channel is read.</p>
       </div>
     </section>
 
@@ -107,7 +167,19 @@
       <div class="section-header">Privacy</div>
       <div class="card prose">
         <p>Your data is not shared with anyone unless you create a share link, and a share link shows only the name of your current pattern.</p>
-        <p>Journal text is stored and never analysed. Connection tokens for your wearable are encrypted before they are stored. You can download everything or delete your account at any time from More.</p>
+        <p>Journal text is stored on this server and is read only if you turn reading on, and then only by a model on this computer. Connection tokens for your wearable are encrypted before they are stored. You can download everything or delete your account at any time from More.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="group">
+        <a class="row" href="references.html">
+          <span class="row-main">
+            <span class="row-title">Works Cited</span>
+            <span class="row-sub">Every study behind these pages, grouped by what it shapes, with links to the originals.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
       </div>
     </section>
 

@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Today</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -25,9 +24,14 @@
       <h1 class="large-title" id="greeting">Today</h1>
     </header>
 
-    <section class="section" style="margin-top:14px;">
+    <section class="section" id="up-next-section" style="margin-top:14px;">
+      <div class="up-next" id="up-next" aria-live="polite"></div>
+    </section>
+
+    <section class="section">
       <div class="card card-hero" aria-live="polite">
         <div class="card-title">Where You Are</div>
+        <div class="hero-dial" id="hero-dial" hidden></div>
         <div id="state-line">Loading your channels.</div>
       </div>
     </section>
@@ -53,21 +57,10 @@
       </div>
     </section>
 
-    <section class="section" id="signals-section">
-      <div class="section-header">Last Night</div>
-      <div class="card">
-        <div class="readings" id="readings"><p class="empty" style="padding:4px;">Loading your body data.</p></div>
-        <p class="footnote secondary" style="margin-top:14px;" id="signals-note"></p>
-      </div>
-    </section>
-
     <section class="section" id="channels-section">
       <div class="section-header">Your Three Channels</div>
-      <div class="card">
-        <div class="rings" id="rings"></div>
-        <p class="footnote secondary" id="rings-note" style="margin-top:16px;"></p>
-        <div id="channel-lines" style="margin-top:18px;"></div>
-      </div>
+      <div class="channel-cards" id="channel-cards"></div>
+      <p class="footnote secondary" id="rings-note" style="margin-top:10px;padding:0 4px;"></p>
     </section>
 
     <section class="section" id="readings-section" hidden>
@@ -78,26 +71,33 @@
       </p>
     </section>
 
-    <section class="section">
-      <div class="section-header">Today</div>
-      <div class="group" id="actions"></div>
-    </section>
-
-    <section class="section">
-      <div class="section-header">Caffeine</div>
+    <section class="section" id="tonight-section" hidden>
+      <div class="section-header">Tonight</div>
       <div class="card">
-        <div class="spread">
-          <div>
-            <div class="stat"><span class="stat-value" id="caf-total">0</span><span class="stat-unit">mg</span></div>
-            <p class="footnote secondary" style="margin-top:4px;">Logged so far today.</p>
-          </div>
+        <div class="tiles" id="tonight-tiles"></div>
+        <div class="grid-2" style="margin-top:16px;">
+          <a class="btn btn-tinted" href="body.html#sleep-section">Plan Tonight</a>
           <a class="btn btn-tinted" href="caffeine.html">Log A Drink</a>
         </div>
       </div>
     </section>
 
+    <section class="section" id="signals-section">
+      <div class="section-header">Last Night</div>
+      <div class="card">
+        <div class="readings" id="readings"><p class="empty" style="padding:4px;">Loading your body data.</p></div>
+        <p class="footnote secondary" style="margin-top:14px;" id="signals-note"></p>
+        <a class="btn btn-tinted btn-block" href="body.html" style="margin-top:14px;">See Your Body</a>
+      </div>
+    </section>
+
+    <section class="section" id="squeeze-section" hidden>
+      <div class="section-header">Busy Week Coming</div>
+      <div class="card" id="squeeze-body"></div>
+    </section>
+
     <section class="section" id="phase-section" hidden>
-      <div class="section-header">Context</div>
+      <div class="section-header">Busy Period</div>
       <div class="card">
         <div id="phase-pill"></div>
         <p class="subhead secondary" style="margin-top:8px;" id="phase-note"></p>
@@ -111,6 +111,7 @@
   <script src="js/explain.js"></script>
   <script src="js/core.js"></script>
   <script src="js/charts.js"></script>
+  <script src="js/channel.js"></script>
   <script src="js/today.js"></script>
 </body>
 </html>

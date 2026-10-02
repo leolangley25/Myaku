@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Daily Check-In</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -32,8 +31,8 @@
         <button type="button" data-day="-1" aria-pressed="false">Yesterday</button>
       </div>
       <div class="segmented" id="mode-toggle" role="group" aria-label="Check-In Length" style="margin-top:10px;">
-        <button type="button" data-mode="full" aria-pressed="true">Full</button>
-        <button type="button" data-mode="quick" aria-pressed="false">Quick</button>
+        <button type="button" data-mode="quick" aria-pressed="true">Quick</button>
+        <button type="button" data-mode="full" aria-pressed="false">Full</button>
       </div>
       <p class="footnote secondary" id="progress-line" style="margin-top:12px;padding:0 4px;" aria-live="polite"></p>
     </section>
@@ -41,9 +40,9 @@
     <section class="section">
       <div class="section-header">The Day Itself</div>
       <div class="card">
-        <div class="card-title">Demand And Your Say</div>
+        <div class="card-title">Load And Whose Call</div>
         <div id="pad-load"></div>
-        <p class="footnote secondary pad-read" id="read-load" aria-live="polite">Tap anywhere on the square.</p>
+        <p class="footnote secondary pad-read" id="read-load" aria-live="polite">Right for a heavier day. Up for more of it being your call.</p>
         <p class="footnote secondary" style="margin-top:12px;">
           A heavy day you chose is a different day from a heavy day that chose you.
         </p>
@@ -55,7 +54,7 @@
       <div class="card">
         <div class="card-title">How Recovered, How Sharp</div>
         <div id="pad-state"></div>
-        <p class="footnote secondary pad-read" id="read-state" aria-live="polite">Tap anywhere on the square.</p>
+        <p class="footnote secondary pad-read" id="read-state" aria-live="polite">Across is how recovered your body feels. Up is how sharp your head feels.</p>
         <p class="footnote secondary" style="margin-top:12px;">
           Rate how sharp you felt, not how sharp you tested. The point is whether the two agree.
         </p>
@@ -66,7 +65,7 @@
       <div class="section-header">Right Now</div>
       <div class="card">
         <div id="pad-affect"></div>
-        <p class="footnote secondary pad-read" id="read-affect" aria-live="polite">Tap anywhere on the square.</p>
+        <p class="footnote secondary pad-read" id="read-affect" aria-live="polite">Across is how pleasant you feel. Up is how wired you feel.</p>
       </div>
     </section>
 
@@ -97,10 +96,15 @@
       </div>
     </section>
 
-    <section class="section">
-      <button class="btn btn-filled btn-block" id="save">Save Check-In</button>
-      <p class="footnote secondary" style="margin-top:10px;text-align:center;" id="status" aria-live="polite"></p>
+    <section class="section" id="more-detail-section">
+      <button type="button" class="btn btn-gray btn-block" id="more-detail">Add More Detail</button>
+      <p class="footnote secondary" style="margin-top:8px;text-align:center;">Body, head, mood and sleep, for the days you have a minute more.</p>
     </section>
+
+    <div class="sticky-action">
+      <button class="btn btn-filled btn-block" id="save">Save Check-In</button>
+      <p class="footnote secondary" style="margin-top:8px;text-align:center;" id="status" aria-live="polite"></p>
+    </div>
 
     <div style="height:24px;"></div>
   </div>

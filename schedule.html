@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Schedule</title>
+  <meta name="theme-color" content="#060708" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <h1 class="large-title">Schedule</h1>
+      <p class="nav-sub">The weeks ahead, and the ones where everything lands at once.</p>
+    </header>
+
+    <section class="section" id="squeeze-section" hidden>
+      <div class="section-header">The Weeks Ahead</div>
+      <div class="card">
+        <div id="squeeze-headline"></div>
+        <div class="week-strip" id="week-strip"></div>
+        <p class="footnote secondary" id="typical-note" style="margin-top:12px;"></p>
+      </div>
+    </section>
+
+    <section class="section" id="response-section" hidden>
+      <div class="section-header">What Busy Weeks Cost</div>
+      <div class="group" id="responses"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        A description of your own nights, not a cause. A game night brings a late finish and a long day with it.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Import A Calendar</div>
+      <div class="card">
+        <p class="subhead secondary">Most team and school calendars can be subscribed to as a link ending in .ics. Paste that link, or upload the file your calendar exports.</p>
+        <label class="field-label" for="cal-url">Calendar Link</label>
+        <input class="field" id="cal-url" type="url" inputmode="url" placeholder="https://example.com/team.ics" />
+        <button class="btn btn-filled btn-block" id="cal-import" style="margin-top:12px;">Import From Link</button>
+        <label class="field-label" for="cal-file">Or A File</label>
+        <input class="field" id="cal-file" type="file" accept=".ics,text/calendar" />
+        <p class="status-line" id="cal-status" aria-live="polite"></p>
+        <p class="footnote secondary" style="margin-top:8px;">
+          Importing again replaces what the last import added, so your season never doubles up. Entries you add by hand are kept.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Add Something Yourself</div>
+      <div class="card">
+        <label class="field-label" for="event-title" style="margin-top:0;">What</label>
+        <input class="field" id="event-title" maxlength="120" placeholder="Finals Week" />
+        <p class="field-label" id="kind-label">Kind</p>
+        <div class="chips" id="kind-chips" role="group" aria-labelledby="kind-label"></div>
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="event-date">Date</label>
+            <input class="field" id="event-date" type="date" />
+          </div>
+          <div>
+            <label class="field-label" for="event-end">Ends</label>
+            <input class="field" id="event-end" type="date" />
+          </div>
+        </div>
+        <button class="btn btn-tinted btn-block" id="event-add" style="margin-top:14px;">Add To Schedule</button>
+        <p class="status-line" id="event-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Coming Up</div>
+      <div class="group" id="events"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">How Weeks Are Read</div>
+      <div class="card prose">
+        <p>Each entry counts for what it usually costs a night. Games, exams and travel count most, lifts and practices less, classes barely at all.</p>
+        <p>A week is called a busy one when it is heavy in itself and heavier than your own ordinary week, measured from the weeks already in your calendar.</p>
+        <p>These weights are reasoned choices, not values proven in a study. Student athletes report insufficient sleep on about four nights a week, travel moves both sleep and body clock, and exam weeks carry the highest stress in a season.</p>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/schedule.js"></script>
+</body>
+</html>

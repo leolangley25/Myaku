@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Log</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,29 +14,37 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <div class="screen">
     <header class="nav-large">
       <h1 class="large-title">Log</h1>
-      <p class="nav-sub">Everything that feeds a channel, and the one thing that does not.</p>
+      <p class="nav-sub">Everything that feeds a channel, and where each channel is read.</p>
     </header>
 
     <section class="section">
-      <div class="section-header">Channels</div>
+      <div class="section-header">Log Something</div>
+      <div class="group" id="log-rows"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">Your Channels</div>
       <div class="group" id="channel-rows"></div>
     </section>
 
     <section class="section">
-      <div class="section-header">Utilities</div>
+      <div class="section-header">Connections</div>
       <div class="group" id="utility-rows"></div>
     </section>
 
     <section class="section">
-      <div class="section-header">Recent Sessions</div>
+      <div class="section-header">Recent Tests</div>
       <div class="group" id="recent"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        The time on the right is your average response, so a lower number is faster. A lapse is a single response slower than 355 milliseconds.
+      </p>
     </section>
 
     <div style="height:24px;"></div>

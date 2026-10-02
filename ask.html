@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Ask</title>
+  <meta name="theme-color" content="#060708" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body class="chat-body">
+  <header class="chat-top">
+    <div class="chat-top-inner">
+      <div>
+        <h1 class="chat-title">Ask</h1>
+        <p class="chat-engine" id="engine-line">Checking what can answer.</p>
+      </div>
+      <div class="chat-top-actions">
+        <span id="engine-pill"></span>
+        <button type="button" class="chat-icon-btn" id="settings-open" aria-label="Assistant settings" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="chat-panel" id="settings-panel" hidden>
+    <div class="chat-panel-inner">
+      <div class="spread">
+        <label class="row-main" for="assistant-switch">
+          <span class="row-title">The Assistant</span>
+          <span class="row-sub" id="switch-sub"></span>
+        </label>
+        <span class="switch"><input type="checkbox" role="switch" id="assistant-switch" /><span class="knob" aria-hidden="true"></span></span>
+      </div>
+      <p class="footnote secondary" id="privacy-line" style="margin-top:12px;"></p>
+      <div class="chat-panel-links">
+        <a class="inline-link" href="method.html#labels">How The Readings Work</a>
+        <button type="button" class="inline-link" id="clear">Clear This Chat</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="chat-scroll" id="chat-scroll">
+    <div class="chat-inner">
+      <div class="chat-intro" id="intro">
+        <div class="chat-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.6 6.2a1.6 1.6 0 0 1 1.6-1.6h11.6a1.6 1.6 0 0 1 1.6 1.6v8a1.6 1.6 0 0 1-1.6 1.6H9.8L5.6 19.4z" /></svg>
+        </div>
+        <p class="chat-intro-title">Ask about your own readings.</p>
+        <p class="chat-intro-sub">Everything here is answered from the numbers already on your pages. It does not diagnose, and it says so when an answer is not in your data.</p>
+      </div>
+
+      <div id="thread" class="chat-thread" role="log" aria-live="polite" aria-label="Conversation"></div>
+    </div>
+  </main>
+
+  <div class="chat-composer">
+    <div class="chat-composer-inner">
+      <div class="chat-starters" id="starters"></div>
+      <p class="status-line" id="status" aria-live="polite"></p>
+      <form class="chat-form" id="chat-form">
+        <label class="sr-only" for="question">Your Question</label>
+        <textarea class="chat-input" id="question" rows="1" maxlength="500" placeholder="Ask About A Reading" enterkeyhint="send"></textarea>
+        <button class="chat-send" id="send" type="submit" aria-label="Send question">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.6 20.4 21 12 3.6 3.6 3.6 10.2 15.6 12 3.6 13.8z" /></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/ask.js"></script>
+</body>
+</html>

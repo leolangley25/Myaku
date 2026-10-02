@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Weekly Reflection</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,31 +14,31 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <div class="screen">
     <header class="nav-large">
       <div class="eyebrow" id="week-line">This Week</div>
-      <h1 class="large-title">Reflection</h1>
-      <p class="nav-sub">One square per area of your life, then the three questions that separate tired from done.</p>
+      <h1 class="large-title">Weekly Reflection</h1>
+      <p class="nav-sub">About five minutes. Answer what applies, skip what does not, and save whenever you like.</p>
     </header>
 
     <div id="domains"></div>
 
     <section class="section">
-      <div class="section-header">The Three Dimensions</div>
+      <div class="section-header">Holding Up</div>
       <div class="card">
         <p class="footnote secondary" style="margin-bottom:16px;">
-          Burnout is not one thing. These are asked apart because the order they move in says something.
+          Three early signs of burnout, asked apart because the order they move in says something.
         </p>
         <div id="burnout"></div>
       </div>
     </section>
 
     <section class="section">
-      <div class="section-header">Everything Else</div>
+      <div class="section-header">People And Sleep</div>
       <div class="card" id="extras"></div>
     </section>
 
@@ -53,10 +52,10 @@
       </div>
     </section>
 
-    <section class="section">
+    <div class="sticky-action">
       <button class="btn btn-filled btn-block" id="save">Save Reflection</button>
-      <p class="footnote secondary" style="margin-top:10px;text-align:center;" id="status"></p>
-    </section>
+      <p class="footnote secondary" style="margin-top:8px;text-align:center;" id="status" aria-live="polite">Any one square is enough to save.</p>
+    </div>
 
     <div style="height:24px;"></div>
   </div>

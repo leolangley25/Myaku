@@ -6,12 +6,17 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
-async function startServer() {
+async function startServer({ localUrl = "http://127.0.0.1:1" } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "myaku-test-"));
   process.env.MYAKU_DATA_DIR = dir;
   // The suite creates an account per test from one address; the sign-in limiter
   // stays at its real value so that behaviour is still tested.
   process.env.SIGNUP_RATE_LIMIT = "1000";
+  // Whether a model happens to be running on the machine must not decide what
+  // these tests assert, so the assistant is pointed at a dead address unless a
+  // test brings its own stand-in.
+  process.env.MYAKU_LOCAL_URL = localUrl;
+  delete process.env.ANTHROPIC_API_KEY;
   const { app } = require("../server/index.js");
   const server = await new Promise((resolve) => {
     const s = app.listen(0, "127.0.0.1", () => resolve(s));

@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — Journal</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,51 +14,162 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <div class="screen">
     <header class="nav-large">
-      <div class="eyebrow" id="date-line">Today</div>
       <h1 class="large-title">Journal</h1>
-      <p class="nav-sub">Write whatever you want. Nothing reads it, and only what you rate below ever counts.</p>
+      <p class="nav-sub" id="header-sub">Writing that has somewhere to go.</p>
     </header>
 
-    <section class="section">
-      <label class="sr-only" for="entry">Journal Entry</label>
-      <textarea class="field" id="entry" placeholder="What stood out about today?" maxlength="20000"></textarea>
-    </section>
-
-    <section class="section">
-      <div class="section-header">Rate The Entry</div>
+    <section class="section" id="consent-section" hidden>
       <div class="card">
-        <div id="pad-affect"></div>
-        <p class="footnote secondary pad-read" id="read-affect" aria-live="polite">Optional, and skipping it still saves the entry.</p>
-        <button class="btn btn-gray btn-sm" id="clear-affect" style="margin-top:14px;" hidden>Clear Rating</button>
-      </div>
-      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
-        This square is the only part of a journal entry that reaches the psychological channel. It is your rating,
-        typed by you. Myaku never infers a mood from what you wrote.
-      </p>
-    </section>
-
-    <section class="section">
-      <div class="section-header">What It Was About</div>
-      <div class="card">
-        <div class="chips" id="domains"></div>
+        <div class="card-title">Before Your First Entry</div>
+        <p class="body">Your Life channel is built from how your days are actually going, and what you write is often the most honest record of that. Choose how much of it counts.</p>
+        <div class="option-list" id="consent-options" role="radiogroup" aria-label="How Your Journal Counts" style="margin-top:14px;"></div>
+        <p class="footnote secondary" id="consent-engine" style="margin-top:10px;"></p>
+        <button class="btn btn-filled btn-block" id="consent-save" style="margin-top:14px;">Start Writing</button>
+        <p class="footnote secondary" style="margin-top:10px;">You can change this whenever you like, at the bottom of this page.</p>
       </div>
     </section>
 
-    <section class="section">
-      <button class="btn btn-filled btn-block" id="save">Save Entry</button>
-      <p class="footnote secondary" style="margin-top:10px;text-align:center;" id="status"></p>
-    </section>
+    <div id="journal-body" hidden>
+      <section class="section">
+        <div class="card">
+          <div class="spread" style="margin-bottom:12px;">
+            <div>
+              <div class="card-title" id="streak-title">This Week</div>
+              <p class="footnote secondary" id="streak-sub"></p>
+            </div>
+            <span id="streak-pill"></span>
+          </div>
+          <div class="week-dots" id="week-dots" role="img" aria-label="The last seven days, marked where you wrote."></div>
+        </div>
+      </section>
 
-    <section class="section">
-      <div class="section-header">Earlier Entries</div>
-      <div class="group" id="past"></div>
-    </section>
+      <section class="section">
+        <div class="section-header" id="rail-header">Pick Tonight's Prompt</div>
+        <p class="footnote secondary" id="suggestion-line" style="padding:0 4px 8px;"></p>
+        <div class="prompt-rail" id="prompt-rail" role="group" aria-label="Kinds of entry"></div>
+
+        <div class="card writer" id="writer">
+          <p class="writer-prompt" id="mode-prompt"></p>
+          <details class="writer-why" id="why-details">
+            <summary id="why-summary">Why This One</summary>
+            <p id="mode-why"></p>
+            <p id="mode-evidence"></p>
+          </details>
+
+          <label class="sr-only" for="entry">Your Entry</label>
+          <textarea class="writer-area" id="entry" maxlength="20000"></textarea>
+
+          <div class="writer-foot">
+            <span class="writer-count" id="word-count">0 Words</span>
+            <button type="button" class="timer-btn" id="timer-toggle">
+              <svg class="timer-ring" viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" opacity="0.25" />
+                <circle cx="10" cy="10" r="8" stroke="currentColor" id="timer-arc" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" />
+              </svg>
+              <span id="timer-label"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card" id="watch-card" hidden>
+          <div class="card-title">About This Week</div>
+          <p class="body" id="watch-line"></p>
+          <a class="inline-link" href="more.html">Support Options In More</a>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">How The Day Landed</div>
+        <div class="card">
+          <p class="footnote secondary" id="pad-note">Drag the dot, or skip it.</p>
+          <div id="pad-host" style="margin-top:12px;"></div>
+          <p class="footnote secondary" id="pad-readout" style="margin-top:8px;text-align:center;"></p>
+          <p class="field-label" id="domain-label">What It Was About</p>
+          <div class="chips" id="domain-chips" role="group" aria-labelledby="domain-label"></div>
+        </div>
+      </section>
+
+      <div class="sticky-action">
+        <button class="btn btn-filled btn-block" id="save">Save Entry</button>
+        <p class="status-line" id="status" aria-live="polite"></p>
+      </div>
+
+      <section class="section" id="reading-section" hidden>
+        <div class="section-header">What Myaku Read</div>
+        <div class="card reading-card" id="reading-card" aria-live="polite"></div>
+      </section>
+
+      <section class="section">
+        <div class="card" id="entry-insight" hidden></div>
+      </section>
+
+      <section class="section" id="trends-section" hidden>
+        <div class="section-header">What Writing Has Done</div>
+        <div class="tiles" id="trend-tiles"></div>
+        <div class="card" style="margin-top:12px;">
+          <div class="card-title">Eight Weeks</div>
+          <p class="footnote secondary" style="margin-bottom:12px;">One square a day, darker where you wrote more.</p>
+          <div class="heat" id="heat"></div>
+          <div class="heat-legend" style="margin-top:10px;">
+            <span>Less</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><span>More</span>
+          </div>
+        </div>
+        <div class="card" id="trend-detail" style="margin-top:12px;"></div>
+      </section>
+
+      <section class="section" id="modes-section" hidden>
+        <div class="section-header">Which Ones You Use</div>
+        <div class="group" id="mode-usage"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">Recent Entries</div>
+        <div class="group" id="recent"></div>
+      </section>
+
+      <section class="section" id="counting-section">
+        <div class="section-header">Counting Toward Life</div>
+        <div class="card">
+          <div class="segmented" id="level-toggle" role="group" aria-label="How Your Journal Counts">
+            <button type="button" data-level="words" aria-pressed="false">Read It</button>
+            <button type="button" data-level="rating" aria-pressed="false">Rating Only</button>
+            <button type="button" data-level="off" aria-pressed="false">Separate</button>
+          </div>
+          <p class="body" id="level-sub" style="margin-top:12px;"></p>
+          <p class="footnote secondary" id="level-engine" style="margin-top:8px;"></p>
+          <div id="read-back" hidden style="margin-top:14px;">
+            <button type="button" class="btn btn-tinted btn-block" id="read-back-btn">Read Earlier Entries</button>
+            <p class="status-line" id="read-back-status" aria-live="polite"></p>
+          </div>
+          <details class="howto">
+            <summary>How Reading Works</summary>
+            <div class="howto-body">
+              <p>The model runs on this computer through Ollama. Your entry goes from this app to that model and nowhere else, and there is no fallback to an online service, so when no model is running an entry simply waits.</p>
+              <p>It is asked for the same things your check-in asks: how the day felt, how much was being asked of you, whether it was your call, what it was about, and whether any of the three burnout signs came up. You see exactly what it took and can change any of it, or leave an entry out.</p>
+              <p>A model reading tone from writing agrees with what people report only loosely from day to day, so this counts for half as much as the answers you give directly. It describes the writing, never the writer.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="section">
+        <details class="card">
+          <summary class="card-title" style="cursor:pointer;">Why These Prompts</summary>
+          <div class="prose" style="margin-top:12px;">
+            <p>A blank page is the reason most journals stop in February, and unstructured venting is the reason some of them make people feel worse. Each prompt here comes from a study, and each one says what it is for.</p>
+            <p>Writing about the hardest thing helps on average, but the average is small, and people often feel worse immediately afterwards before improving over the following weeks. It is not a treatment and this app is not a therapist.</p>
+            <p>The prompts avoid the questions that sit on the rumination scale, like asking why you feel this way. When writing about a bad day keeps circling, writing about yourself in the third person tends to settle it better than writing from inside it.</p>
+            <a class="inline-link" href="method.html#journal">Every Study Behind These</a>
+          </div>
+        </details>
+      </section>
+    </div>
 
     <div style="height:24px;"></div>
   </div>

@@ -1,14 +1,19 @@
 /* Myaku — Today.
  *
- * The first screen answers three questions in order: where am I, what should I
- * look at, and what is left to do today. A new athlete gets a different first
- * answer — how close they are to a first reading — because "Still Calibrating"
- * on its own is a reason to close the app, and a progress bar is a reason to
- * come back.
+ * The first screen answers four questions in order: where am I, which channel is
+ * behind it, what is left to do today, and what to do about tonight. Each channel
+ * is a door into its own page rather than a number to decode here, and each card
+ * names the part pulling that channel the wrong way.
+ *
+ * A new athlete gets a different first answer — how close they are to a first
+ * reading — because "Still Calibrating" on its own is a reason to close the app,
+ * and a progress bar is a reason to come back.
  */
 
 (function () {
   M.boot("today");
+
+  const $ = (id) => document.getElementById(id);
 
   const ICON = {
     pvt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.5"/></svg>',
@@ -27,7 +32,11 @@
     demo: "the demo season",
   };
 
-  document.getElementById("date-line").textContent = M.prettyDate(M.todayKey());
+  const PAGES = { autonomic: "body.html", cognitive: "brain.html", psychological: "life.html" };
+  // "Channel" means nothing on its own, so each card also names where its readings come from.
+  const SOURCE_OF = { autonomic: "Wearable", cognitive: "Reaction Test", psychological: "Check-Ins" };
+
+  $("date-line").textContent = M.prettyDate(M.todayKey());
 
   /* ---------------- where you are ---------------- */
 
@@ -52,31 +61,64 @@
         </div>
       </div>`;
     };
-    document.getElementById("state-line").innerHTML = `
+    $("state-line").innerHTML = `
       <p class="title-1">Learning Your Normal</p>
       <p class="body" style="margin-top:10px;opacity:0.85;">
-        Myaku only ever compares you against yourself, so it needs a few weeks of you before it names a pattern.
-        Your readings below are real from the first day.
+        Myaku only ever compares you against yourself. A first reading needs four weeks: three to learn your normal,
+        and one to compare against it. Your readings below are real from the first day.
       </p>
       ${meter("Body", progress.channels.autonomic.weeks)}
       ${meter("Brain", progress.channels.cognitive.weeks)}
       ${meter("Life", progress.channels.psychological.weeks)}
       <p class="footnote" style="margin-top:16px;opacity:0.85;">${M.esc(nextUnlock(progress))}</p>`;
-    Motion.swapIn(document.getElementById("state-line"));
+    $("hero-dial").hidden = true;
+    Motion.swapIn($("state-line"));
   }
 
   function renderState(d) {
     const s = d.state;
-    document.getElementById("state-line").innerHTML = `
+    $("state-line").innerHTML = `
       <p class="title-1">${M.esc(s.name)}</p>
       <p class="body" style="margin-top:10px;opacity:0.85;">${M.esc(s.detail)}</p>
-      <div style="margin-top:16px;">${M.pill(M.confidenceLabel(d.confidence), s.tone)}</div>
+      <div class="hstack" style="margin-top:16px;flex-wrap:wrap;gap:12px;">
+        ${M.pill(M.confidenceLabel(d.confidence), s.tone)}
+        <a class="inline-link" href="method.html#patterns">What Patterns Mean</a>
+      </div>
+      <p class="footnote secondary" style="margin-top:8px;">${M.esc(M.confidenceSentence(d.confidence))}</p>
       ${s.guidance && s.guidance.length
         ? `<p class="guidance-title">Things That Might Help</p>
            <ul class="guidance">${s.guidance.map((g) => `<li>${M.esc(g)}</li>`).join("")}</ul>`
         : ""}`;
-    Motion.swapIn(document.getElementById("state-line"));
-    document.getElementById("support-section").hidden = !s.support;
+    Motion.swapIn($("state-line"));
+    $("support-section").hidden = !s.support;
+    renderDial(d);
+  }
+
+  /* All three channels on one dial. Markers bunched at the top is a week where
+     everything agrees; markers pulled apart is exactly the disagreement the
+     model exists to find, visible before a word of it is read. */
+  function renderDial(d) {
+    const host = $("hero-dial");
+    const channels = Object.entries(M.CHANNELS).map(([key, meta]) => ({
+      key, label: meta.label, color: meta.color, z: (d.channels[key] || {}).z,
+    }));
+    const known = channels.filter((c) => c.z != null);
+    host.hidden = !known.length;
+    if (!known.length) return;
+
+    const furthest = [...known].sort((a, b) => b.z - a.z)[0];
+    const allTypical = known.every((c) => Math.abs(c.z) < d.thresholds.notable);
+    Channel.dial(host, {
+      markers: channels, thresholds: d.thresholds, size: 224, word: true,
+      value: allTypical ? "Typical" : Explain.band(furthest.z, d.thresholds).short,
+      label: allTypical ? "All Three Channels" : `Furthest Out · ${furthest.label}`,
+    });
+    host.insertAdjacentHTML("beforeend", `<div class="dial-legend">${channels.map((c) => `
+      <span class="dial-legend-item" style="color:${c.color}">
+        <span class="dial-dot" style="background:${c.color}"></span>
+        <span style="color:var(--on-surface-variant)">${c.label} · ${Explain.band(c.z, d.thresholds).short}</span>
+      </span>`).join("")}</div>
+      <p class="footnote secondary dial-help">The top of the dial is typical for you. Further right is worse than usual, and further left is better.</p>`);
   }
 
   /* ---------------- getting started ---------------- */
@@ -93,9 +135,9 @@
     const done = items.filter((i) => i.done).length;
     if (done === items.length) return;
 
-    document.getElementById("checklist-section").hidden = false;
-    document.getElementById("checklist-count").textContent = `${done} of ${items.length} done.`;
-    document.getElementById("checklist").innerHTML = items
+    $("checklist-section").hidden = false;
+    $("checklist-count").textContent = `${done} of ${items.length} done.`;
+    $("checklist").innerHTML = items
       .map((i) => `<a class="check-item${i.done ? " done" : ""}" href="${i.href}">
         <span class="check-box" aria-hidden="true">${ICON.tick}</span>
         <span class="row-main">
@@ -109,49 +151,51 @@
 
   /* ---------------- channels ---------------- */
 
-  function renderRings(d) {
-    const el = document.getElementById("rings");
+  /* A ring shows how far a channel has moved; the sentence under it says which
+     part moved it, so the card answers "why" before anyone has to tap through. */
+  /* The week a channel's reading actually comes from. When nothing has been
+     logged in the last seven days, the engine still shows the newest week it has,
+     and calling that "the last seven days" would be untrue. */
+  function staleSince(ch, anchor) {
+    const points = (ch.points || []).filter((p) => p.z != null);
+    if (!points.length || !anchor) return null;
+    const latest = points[points.length - 1].week;
+    const windowStart = M.shiftKey ? M.shiftKey(anchor, -6) : null;
+    return windowStart && latest < windowStart ? latest : null;
+  }
+
+  function renderChannels(d) {
+    const el = $("channel-cards");
     el.innerHTML = Object.entries(M.CHANNELS)
       .map(([key, meta]) => {
         const ch = d.channels[key] || {};
         const b = Explain.band(ch.z, d.thresholds);
-        return `<div class="ring-item" role="img" aria-label="${M.esc(meta.label)}: ${M.esc(b.word)}">
-          ${M.ring(ch.z, meta.color)}
-          <div class="ring-label">${meta.label}</div>
-          <div class="ring-val" data-z="${ch.z == null ? "" : ch.z}" style="color:${ch.z == null ? "var(--label-3)" : meta.color}">${M.zLabel(ch.z)}</div>
-        </div>`;
+        const top = Channel.topPart(key, ch.parts, d.thresholds);
+        const stale = staleSince(ch, d.anchor);
+        const sub = ch.z == null
+          ? "Not enough history to compare yet."
+          : stale
+            ? `Nothing new in seven days, so this is from the week starting ${M.prettyDate(stale)}.`
+            : top ? top.worse : Explain.channelSentence(key, ch.z, d.thresholds);
+        return `<a class="channel-card" href="${PAGES[key]}" aria-label="${M.esc(meta.label)}: ${M.esc(b.word)}. ${M.esc(sub)}">
+          <span class="channel-card-ring" aria-hidden="true">${M.ring(ch.z, meta.color, 60)}</span>
+          <span class="channel-card-main">
+            <span class="channel-card-label" style="color:${meta.color}">${meta.label} <span class="channel-card-source">· ${SOURCE_OF[key]}</span></span>
+            <span class="channel-card-word">${M.esc(b.word)}</span>
+            <span class="channel-card-sub">${M.esc(sub)}</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>`;
       })
       .join("");
 
     M.animateRings(el);
-    // The number climbs alongside its own arc, so the two read as one gauge.
-    el.querySelectorAll(".ring-val").forEach((node, i) => {
-      const z = node.dataset.z;
-      if (z === "") return;
-      setTimeout(() => Motion.countSigned(node, Number(z), { duration: 1000, decimals: 1 }), i * 130);
-    });
 
-    document.getElementById("rings-note").textContent = {
-      calibrating: "Rings fill in as each channel builds enough history to compare against.",
-      provisional: "These are early readings until a few more weeks of history exist.",
-      established: "Each ring compares this week against your own normal, not against anybody else.",
+    $("rings-note").textContent = {
+      calibrating: "Each gauge fills in once its channel has three earlier weeks to compare against.",
+      provisional: "Each gauge shows your last seven days against your normal, and early readings can still shift.",
+      established: "Each gauge shows your last seven days against your own normal. The top is typical, right is worse, and left is better.",
     }[d.confidence];
-
-    /* A sentence per channel, because a ring and a number tell you a value has
-       moved without telling you what has moved or which way is bad. */
-    document.getElementById("channel-lines").innerHTML = Object.entries(M.CHANNELS)
-      .map(([key, meta]) => {
-        const ch = d.channels[key] || {};
-        const b = Explain.band(ch.z, d.thresholds);
-        return `<div class="hstack" style="align-items:flex-start;gap:10px;padding:8px 0;">
-          <span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;background:${meta.color};margin-top:6px;flex-shrink:0;"></span>
-          <span class="subhead" style="flex:1;">
-            <strong>${meta.label}</strong> · ${M.esc(b.word)}<br />
-            <span class="secondary">${M.esc(Explain.channelSentence(key, ch.z, d.thresholds))}</span>
-          </span>
-        </div>`;
-      })
-      .join("");
   }
 
   /* The gaps, which are the only thing here that no single-channel app can
@@ -161,8 +205,8 @@
       .map(([key, value]) => ({ key, value, meaning: Explain.gapMeaning(key) }))
       .filter((g) => g.meaning.title && g.value != null && Math.abs(g.value) >= d.thresholds.gap);
 
-    document.getElementById("readings-section").hidden = !rows.length;
-    document.getElementById("readings-list").innerHTML = rows
+    $("readings-section").hidden = !rows.length;
+    $("readings-list").innerHTML = rows
       .map((g) => `<div class="row" style="align-items:flex-start;">
           <span class="row-main">
             <span class="row-title">${M.esc(g.meaning.title)}</span>
@@ -174,52 +218,133 @@
 
   /* ---------------- today ---------------- */
 
+  /* The first thing on the page is the one thing to do next. The full list of
+     daily tasks used to sit two and a half screens down, under the dial, the
+     guidance, the channels and the disagreements, so the app's own daily loop
+     was the hardest thing in it to find. */
   async function renderActions(progress) {
     const journal = await M.api("/api/journal?date=" + M.todayKey()).catch(() => ({}));
     const w = progress.thisWeek;
-    const done = (b) => (b ? "Done" : null);
+    const hour = new Date().getHours();
 
-    const actions = document.getElementById("actions");
-    actions.innerHTML = [
-      M.row({
-        title: "Reaction Test", href: "pvt.html", icon: ICON.pvt, tint: "var(--ch-cog)",
-        sub: `${w.pvt} of ${w.pvtTarget} this week. Take it at the same hour each time.`,
-        value: done(progress.today.pvt),
-      }),
-      M.row({
-        title: "Daily Check-In", href: "checkin.html", icon: ICON.checkin, tint: "var(--ch-psy)",
-        sub: `${w.checkins} of ${w.checkinTarget} this week. Under a minute.`,
-        value: done(progress.today.checkin),
-      }),
-      M.row({
-        title: "Weekly Reflection", href: "weekly.html", icon: ICON.weekly, tint: "var(--purple)",
-        sub: w.weekly ? "Done for this week." : "Once a week, on any day that suits you.",
-        value: done(w.weekly),
-      }),
-      M.row({
-        title: "Journal", href: "journal.html", icon: ICON.journal, tint: "var(--gray)",
-        sub: "Optional, and only the rating you add is counted.",
-        value: done(journal.entry && journal.entry.content),
-      }),
-    ].join("");
+    const tasks = [
+      {
+        key: "checkin", title: "Daily Check-In", href: "checkin.html", icon: ICON.checkin,
+        sub: "Under a minute.", done: !!progress.today.checkin,
+        /* Evenings are when a day can actually be rated. */
+        weight: hour >= 16 ? 3 : 2,
+      },
+      {
+        key: "pvt", title: "Reaction Test", href: "pvt.html", icon: ICON.pvt,
+        sub: `Three minutes, ${w.pvt} of ${w.pvtTarget} this week.`,
+        done: !!progress.today.pvt || w.pvt >= w.pvtTarget,
+        weight: hour < 12 ? 3 : 1,
+      },
+      {
+        key: "weekly", title: "Weekly Reflection", href: "weekly.html", icon: ICON.weekly,
+        sub: "Once a week, about five minutes.", done: !!w.weekly,
+        /* It only becomes the next thing late in the week. */
+        weight: [0, 5, 6].includes(new Date().getDay()) ? 2.5 : 0.5,
+      },
+      {
+        key: "journal", title: "Journal", href: "journal.html", icon: ICON.journal,
+        sub: "Optional.", done: !!(journal.entry && journal.entry.content),
+        weight: hour >= 20 ? 1.5 : 0.2,
+      },
+    ];
 
-    /* The list arrives after the page does, so its rows get their own cascade
-       rather than inheriting the section's single entrance. */
-    if (Motion.reduced()) return;
-    actions.querySelectorAll(".row").forEach((row, i) =>
-      row.animate(
-        [{ opacity: 0, transform: "translate3d(0, 16px, 0)" }, { opacity: 1, transform: "none" }],
-        { duration: 480, delay: i * 70, easing: "cubic-bezier(0.05, 0.7, 0.1, 1)", fill: "backwards" }
-      )
-    );
+    const open = tasks.filter((t) => !t.done).sort((a, b) => b.weight - a.weight);
+    const next = open[0];
+    const others = tasks.filter((t) => t !== next);
+
+    const pills = others
+      .map((t) => `<a class="task-pill${t.done ? " done" : ""}" href="${t.href}">${M.esc(t.title)}</a>`)
+      .join("");
+
+    $("up-next").innerHTML = next
+      ? `<a class="up-next-main" href="${next.href}">
+           <span aria-hidden="true" style="display:grid;">${next.icon}</span>
+           <span class="up-next-text">
+             <span class="up-next-title">${M.esc(next.title)}</span>
+             <span class="up-next-sub">${M.esc(next.sub)}</span>
+           </span>
+           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+         </a>
+         <div class="task-pills">${pills}</div>`
+      : `<div class="up-next-done">
+           <span class="tone-dot" style="background:var(--green)"></span>
+           <span><strong>Done For Today</strong><br /><span class="footnote secondary">Everything that feeds your channels is in.</span></span>
+         </div>
+         <div class="task-pills">${pills}</div>`;
+  }
+
+  /* ---------------- tonight ---------------- */
+
+  /* The same caffeine model the Caffeine page and the server use, so the number
+     here always matches the one a tap away. */
+  const doseLevel = (mg, elapsed) => (elapsed >= 0 ? mg * Math.min(1, elapsed / 0.75) * Math.pow(0.5, elapsed / 5) : 0);
+  const hoursOf = (hhmm) => {
+    const [h, m] = String(hhmm || "").split(":").map(Number);
+    return (h || 0) + (m || 0) / 60;
+  };
+  const clock = (minutes) => {
+    const v = ((Math.round(minutes) % 1440) + 1440) % 1440;
+    const h = Math.floor(v / 60);
+    return `${h % 12 || 12}:${String(v % 60).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  };
+
+  async function renderTonight() {
+    const [body, caffeine, insights] = await Promise.all([
+      M.api("/api/body").catch(() => null),
+      M.api("/api/caffeine").catch(() => null),
+      M.api("/api/caffeine/insights").catch(() => null),
+    ]);
+    const tiles = [];
+    let planned = null;
+
+    if (body && body.hasData && body.sleep) {
+      const s = body.sleep;
+      let wake = null;
+      try { wake = localStorage.getItem("myaku.wake." + M.todayKey()); } catch { /* private mode */ }
+      if (!/^\d{2}:\d{2}$/.test(wake || "")) wake = s.timing ? s.timing.usualWake : "07:00";
+      const wakeMinutes = hoursOf(wake) * 60;
+      planned = wakeMinutes - s.inBedNeeded;
+      tiles.push({ key: "In Bed By", val: clock(planned), sub: `To Wake At ${clock(wakeMinutes)}`, words: true });
+      if (s.week.average != null) {
+        tiles.push({ key: "Sleep This Week", val: Explain.duration(s.week.average), sub: `Goal ${Explain.duration(body.goal)}`, words: true });
+      }
+    }
+
+    if (caffeine && insights) {
+      const entries = caffeine.entries || [];
+      const yesterday = insights.yesterday || [];
+      const level = (hour) =>
+        entries.reduce((t, e) => t + doseLevel(Number(e.mg), hour - hoursOf(e.logged_at)), 0) +
+        yesterday.reduce((t, e) => t + doseLevel(Number(e.mg), hour + 24 - hoursOf(e.logged_at)), 0);
+      /* The same bedtime as the tile beside it. Two different bedtimes on one card
+         used to leave caffeine measured at a time the plan never mentioned. */
+      let bedHour = insights.bedHour;
+      if (planned != null) {
+        bedHour = (((Math.round(planned) % 1440) + 1440) % 1440) / 60;
+        if (bedHour < 12) bedHour += 24;
+      }
+      const atBed = Math.round(Math.max(...[0, 0.25, 0.5, 0.75].map((k) => level(bedHour + k))));
+      const zone = atBed < 30 ? "Clear" : atBed < 75 ? "Borderline" : "High";
+      tiles.push({ key: "Caffeine At Bedtime", val: `${atBed}<span class="stat-unit"> mg</span>`, sub: `${zone} At ${clock(bedHour * 60)}` });
+    }
+
+    $("tonight-section").hidden = !tiles.length;
+    $("tonight-tiles").innerHTML = tiles.map((t) => `<div class="tile">
+      <div class="tile-key">${t.key}</div>
+      <div class="tile-val${t.words ? " words" : ""}">${t.val}</div>
+      <div class="tile-sub">${t.sub}</div>
+    </div>`).join("");
   }
 
   /* ---------------- wearable readings ---------------- */
 
-  /* The raw numbers a wearable already shows, kept here for two reasons. They
-     are what most people actually want to look at, and Myaku's whole argument
-     is about where these disagree with the other two channels — which is an
-     argument you cannot follow without seeing them. */
+  /* The raw numbers a wearable already shows, kept here because they are what most
+     people want to look at first. The Body page reads them properly. */
   const SIGNALS = [
     {
       key: "sleep_minutes", label: "Sleep", color: "var(--ch-auto)",
@@ -231,7 +356,7 @@
       },
     },
     {
-      key: "sleep_efficiency", label: "Sleep Quality", color: "var(--ch-auto)",
+      key: "sleep_efficiency", label: "Sleep Efficiency", color: "var(--ch-auto)",
       format: (v) => Math.round(v) + '<span class="unit">%</span>',
       compareOpts: { higherIsWorse: false, unit: "%", tolerance: 0.02 },
     },
@@ -255,7 +380,7 @@
       return;
     }
 
-    const el = document.getElementById("readings");
+    const el = $("readings");
     if (!days || !days.length) {
       el.innerHTML = `<div style="grid-column:1/-1;">
         <p class="body">No body data yet.</p>
@@ -264,7 +389,7 @@
         </p>
         <a class="btn btn-tinted" href="sources.html" style="margin-top:14px;">Connect Body Data</a>
       </div>`;
-      document.getElementById("signals-note").textContent = "";
+      $("signals-note").textContent = "";
       return;
     }
 
@@ -291,9 +416,10 @@
     });
 
     const stale = latest.date < M.shiftKey(M.todayKey(), -2);
-    document.getElementById("signals-note").textContent =
+    $("signals-note").textContent =
       `From ${SOURCE_LABELS[latest.source] || "your connected source"}, recorded ${M.prettyDate(latest.date)}. ` +
-      (stale ? "Nothing newer has arrived, so check your connection in Data Sources." : "Each line is your last fourteen days.");
+      (stale ? "Nothing newer has arrived, so check your connection in Data Sources." : "Each line is your last fourteen days.") +
+      " Sleep efficiency is the share of your time in bed spent asleep.";
   }
 
   /* A wearable that has not synced in six hours is synced now, quietly, and the
@@ -312,25 +438,37 @@
     }
   }
 
-  async function renderCaffeine() {
-    try {
-      const { entries } = await M.api("/api/caffeine");
-      const total = entries.reduce((s, e) => s + (e.mg || 0), 0);
-      Motion.countUp(document.getElementById("caf-total"), Math.round(total), { duration: 900 });
-    } catch { /* signed out, handled by the api layer */ }
-  }
-
   async function renderPhase() {
     try {
       const { phases } = await M.api("/api/phases");
       const t = M.todayKey();
       const active = phases.find((p) => p.start_date <= t && t <= p.end_date);
       if (!active) return;
-      document.getElementById("phase-section").hidden = false;
-      document.getElementById("phase-pill").innerHTML = M.pill(active.label, "warn");
-      document.getElementById("phase-note").textContent =
-        "You marked this stretch as high load, so a raised reading here is less surprising.";
+      $("phase-section").hidden = false;
+      $("phase-pill").innerHTML = M.pill(active.label, "warn");
+      $("phase-note").textContent = "You marked this as a busy period, so a raised reading here is less surprising.";
     } catch { /* ignore */ }
+  }
+
+  /* The week ahead, but only when there is one worth naming. An empty calendar
+     says nothing, and a quiet fortnight does not need a card. */
+  async function renderSqueeze() {
+    try {
+      const season = await M.api("/api/schedule");
+      if (!season.next) return;
+      const counts = Object.entries(season.next.counts || {})
+        .filter(([, n]) => n > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([kind, n]) => `${n} ${kind}${n === 1 ? "" : "s"}`)
+        .join(", ");
+      $("squeeze-section").hidden = false;
+      $("squeeze-body").innerHTML = `
+        <p class="body">${M.esc(M.prettyDate(season.next.start))} to ${M.esc(M.prettyDate(season.next.end))}, with ${M.esc(counts)}.</p>
+        <p class="footnote secondary" style="margin-top:8px;">That is heavier than your usual week. Nothing has happened yet, and knowing early is the point.</p>
+        <a class="inline-link" href="schedule.html">See The Weeks Ahead</a>`;
+    } catch {
+      /* a calendar is optional, so silence is the right failure here */
+    }
   }
 
   async function init() {
@@ -344,22 +482,23 @@
       location.replace("welcome.html");
       return;
     }
-    document.getElementById("greeting").textContent = `${M.greeting()}, ${String(me.user.name).split(" ")[0]}`;
+    $("greeting").textContent = `${M.greeting()}, ${String(me.user.name).split(" ")[0]}`;
 
     renderSignals();
-    renderCaffeine();
+    renderTonight();
     renderPhase();
+    renderSqueeze();
 
     try {
       const [d, progress] = await Promise.all([M.api("/api/divergence"), M.api("/api/progress")]);
       if (d.state) renderState(d);
       else renderLearning(progress);
       renderChecklist(progress);
-      renderRings(d);
+      renderChannels(d);
       renderGaps(d);
       renderActions(progress);
     } catch {
-      document.getElementById("state-line").textContent = "Your channels could not be loaded just now, so try again shortly.";
+      $("state-line").textContent = "Your channels could not be loaded just now, so try again shortly.";
     }
 
     refreshStaleSources(me);

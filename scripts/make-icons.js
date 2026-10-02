@@ -63,9 +63,10 @@ const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
-const TOP = hex("#7f67be");
-const BOTTOM = hex("#381e72");
-const RINGS = [hex("#ffb2bf"), hex("#b6c4ff"), hex("#f5bf48")];
+// The night panel: near-black with a faint lift, and the three channel hues.
+const TOP = hex("#1a1c21");
+const BOTTOM = hex("#060708");
+const RINGS = [hex("#ffab4a"), hex("#a99bff"), hex("#62d0f5")];
 
 /* Signed distance to a rounded square, for the icon's own corner rounding. */
 function roundedSquare(x, y, size, radius) {

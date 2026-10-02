@@ -177,19 +177,85 @@ addColumn("weekly_checkins", "abq_accomplishment INTEGER");
 addColumn("weekly_checkins", "abq_devaluation INTEGER");
 
 /* How a journal entry reaches the psychological channel. The rating is typed by
-   the person, on the same grid the daily check-in uses. Nothing reads the text,
-   because inferring mood from someone's private writing is not a claim this app
-   is in a position to make. */
+   the person, on the same grid the daily check-in uses. The text is read only
+   when the athlete turns that on, and only by a model on this machine; see the
+   read_ columns below. */
 addColumn("journal_entries", "valence REAL");
 addColumn("journal_entries", "arousal REAL");
 addColumn("journal_entries", "domains TEXT");
 
+/* Which kind of writing an entry was, and how much of it there was. */
+addColumn("journal_entries", "mode TEXT");
+addColumn("journal_entries", "word_count INTEGER");
+
+/* Whether journal ratings are allowed to reach the Life channel. Asked once,
+   before the first entry, and changeable afterwards. Null means never asked. */
+addColumn("calibration", "journal_in_life INTEGER");
+
 /* Onboarding, so a new account lands on the welcome flow and the demo does not. */
 addColumn("users", "onboarded_at TEXT");
+
+/* Who the app is being used by. Myaku started around college athletes, but a club
+   swimmer, a high school runner and someone training on their own all live the
+   same three channels with different calendars around them. */
+addColumn("calibration", "audience TEXT");
+addColumn("calibration", "wake_time TEXT");
+addColumn("calibration", "season_phase TEXT");
+addColumn("calibration", "setup_version INTEGER");
+
+/* Questions about the athlete's own readings are answered by a model, which means
+   their data leaves this server. It never happens without an explicit yes. */
+addColumn("users", "assistant_opt_in TEXT");
 addColumn("integrations", "last_error TEXT");
 addColumn("integrations", "rows_imported INTEGER");
 
+/* When each night started and ended, as wall-clock time where the athlete was.
+   Duration alone cannot show a schedule drifting later, and an irregular
+   schedule is its own problem even when the hours add up. */
+addColumn("daily_metrics", "sleep_start TEXT");
+addColumn("daily_metrics", "sleep_end TEXT");
+addColumn("calibration", "sleep_goal_minutes INTEGER");
+
+/* Which device ran a reaction test, and the hour on the athlete's own clock. Phones
+   differ in how quickly they register a tap, and alertness follows the time of day,
+   so both decide whether two tests can be compared at all. started_at is UTC. */
+addColumn("pvt_sessions", "device TEXT");
+addColumn("pvt_sessions", "local_time TEXT");
+
+/* What a model on this machine took from an entry, when the athlete allows it.
+   Kept as the words the model chose, so the athlete can see and correct exactly
+   that. Edited marks a reading they changed by hand; excluded marks an entry they
+   chose to keep out of the channel. Cleared whenever the entry's text changes. */
+addColumn("journal_entries", "read_json TEXT");
+addColumn("journal_entries", "read_model TEXT");
+addColumn("journal_entries", "read_at TEXT");
+addColumn("journal_entries", "read_edited INTEGER");
+addColumn("journal_entries", "read_excluded INTEGER");
+
+/* Whether entries may be read at all. Separate from journal_in_life, which only
+   ever covered the rating typed under an entry. Null means never asked. */
+addColumn("calibration", "journal_read INTEGER");
+
 db.exec(`
+  /* What the athlete's weeks are made of: games, practices, travel, exams and
+     deadlines. Imported from a calendar or added by hand, and never analysed for
+     anything except when they land and what they collide with. */
+  CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    date TEXT NOT NULL,
+    end_date TEXT,
+    start_time TEXT,
+    kind TEXT NOT NULL,
+    title TEXT,
+    source TEXT NOT NULL DEFAULT 'manual',
+    uid TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_events_user_date ON events(user_id, date);
+  /* One row per calendar entry, so re-importing a feed updates instead of doubling. */
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_events_uid ON events(user_id, uid) WHERE uid IS NOT NULL;
+
   /* Sessions survive a restart instead of signing everybody out. */
   CREATE TABLE IF NOT EXISTS sessions (
     sid TEXT PRIMARY KEY,
@@ -246,7 +312,7 @@ db.exec(`
    without somebody noticing that account deletion has to know about it. */
 db.USER_TABLES = [
   "calibration", "daily_metrics", "pvt_sessions", "daily_checkins", "weekly_checkins",
-  "journal_entries", "caffeine_logs", "phases", "integrations", "share_links",
+  "journal_entries", "caffeine_logs", "phases", "events", "integrations", "share_links",
   "oauth_tokens", "push_subscriptions", "reminder_prefs", "reminder_log",
 ];
 

@@ -73,6 +73,16 @@ function localDate(iso, offset) {
   return new Date(t + mins * 60000).toISOString().slice(0, 10);
 }
 
+/* The same moment as a wall-clock stamp, which is how a night's start and end
+   are stored so a bedtime reads as the hour the athlete actually saw. */
+function localStamp(iso, offset) {
+  const t = Date.parse(iso || "");
+  if (Number.isNaN(t)) return null;
+  const m = /^([+-])(\d{2}):?(\d{2})$/.exec(offset || "");
+  const mins = m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : 0;
+  return new Date(t + mins * 60000).toISOString().slice(0, 16).replace("T", " ");
+}
+
 async function collect(path, token, start) {
   const records = [];
   let next = null;
@@ -113,6 +123,8 @@ function mapWhoop(sleeps, recoveries) {
       date,
       sleepMinutes: asleepMs ? asleepMs / 60000 : null,
       sleepEfficiency: s.score.sleep_efficiency_percentage ?? null,
+      sleepStart: localStamp(s.start, s.timezone_offset),
+      sleepEnd: localStamp(s.end, s.timezone_offset),
     };
     const prev = nights[date];
     if (!prev || (row.sleepMinutes || 0) > (prev.sleepMinutes || 0)) nights[date] = row;
@@ -141,5 +153,5 @@ module.exports = {
   id: "whoop",
   label: "Whoop",
   usesPkce: false,
-  config, authorizeUrl, exchange, refresh, sync, mapWhoop, localDate,
+  config, authorizeUrl, exchange, refresh, sync, mapWhoop, localDate, localStamp,
 };

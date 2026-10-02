@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Brain</title>
+  <meta name="theme-color" content="#060708" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Brain Channel</div>
+      <h1 class="large-title">Brain</h1>
+      <p class="nav-sub">How sharp your attention is, measured rather than guessed, and what moves it.</p>
+    </header>
+
+    <section class="section">
+      <div class="card">
+        <div class="card-title">Last Seven Days</div>
+        <div id="channel-state" aria-live="polite">Loading your reaction tests.</div>
+        <div class="driver-axis" id="driver-axis" aria-hidden="true"><span>Better Than Usual</span><span>Worse Than Usual</span></div>
+        <div class="drivers" id="drivers"></div>
+        <div class="body-chart" id="channel-chart" role="img" aria-label="Brain Channel By Week"></div>
+        <p class="footnote secondary" id="channel-note" style="margin-top:10px;"></p>
+        <a class="btn btn-filled btn-block" href="pvt.html" style="margin-top:16px;">Take The Reaction Test</a>
+      </div>
+    </section>
+
+    <section class="section" id="empty-section" hidden>
+      <div class="card">
+        <p class="callout">Take the three-minute reaction test a few times a week to open up your Brain channel.</p>
+      </div>
+    </section>
+
+    <section class="section" id="week-section" hidden>
+      <div class="section-header">Last Seven Days</div>
+      <div class="card">
+        <div class="tiles" id="week-tiles"></div>
+        <div class="meter" id="week-meter" style="margin-top:16px;" role="progressbar" aria-label="Tests In The Last Seven Days" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span style="width:0%"></span></div>
+        <p class="finding" id="week-finding"></p>
+        <p class="footnote secondary" id="week-precision"></p>
+        <p class="footnote secondary" style="margin-top:6px;">A lapse is a response slower than 355 milliseconds, the moment attention drifts.</p>
+      </div>
+    </section>
+
+    <section class="section" id="sessions-section" hidden>
+      <div class="section-header">Every Test</div>
+      <div class="card">
+        <div class="body-chart" id="sessions-chart" role="img" aria-label="Your Reaction Tests Over Two Months" style="margin-top:0;"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch point" style="background:var(--ch-cog);opacity:1;"></span>One Test</span>
+          <span class="legend-item"><span class="legend-swatch ring"></span>Soon After Caffeine</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--green);"></span>Your Usual Range</span>
+        </div>
+        <details class="howto">
+          <summary>How To Read This</summary>
+          <div class="howto-body">
+            <p>Each dot is one test, placed by date and by its average reaction time, so higher means slower. The green band is where the middle half of your earlier tests fell.</p>
+            <p>A single test moves with how you slept, the hour, and chance, so look for a run of dots sitting above the band rather than any one of them.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="timing-section" hidden>
+      <div class="section-header">Same Hour</div>
+      <div class="card">
+        <div class="tiles" id="timing-tiles"></div>
+        <p class="body" id="timing-sentence" style="margin-top:14px;"></p>
+      </div>
+    </section>
+
+    <section class="section" id="caffeine-section" hidden>
+      <div class="section-header">Caffeine Before Tests</div>
+      <div class="card">
+        <p class="finding" id="caffeine-finding" style="margin-top:0;"></p>
+        <div id="caffeine-table"></div>
+        <p class="footnote secondary" style="margin-top:12px;">Only caffeine you logged counts, so an unlogged coffee before a test is invisible here.</p>
+        <a class="btn btn-tinted btn-block" href="caffeine.html" style="margin-top:14px;">Open Caffeine</a>
+      </div>
+    </section>
+
+    <section class="section" id="sleep-section" hidden>
+      <div class="section-header">After Short Nights</div>
+      <div class="card">
+        <div class="spread">
+          <div class="card-title" style="margin:0;">Body And Brain</div>
+          <a class="badge badge-describe" href="method.html#labels">Description</a>
+        </div>
+        <p class="finding" id="sleep-finding"></p>
+        <div id="sleep-table"></div>
+        <p class="footnote secondary" id="sleep-note" style="margin-top:12px;"></p>
+        <p class="caveat">This describes your tests and does not prove the nights caused them. A short night often comes with an early start or a stressful day as well.</p>
+      </div>
+    </section>
+
+    <section class="section" id="felt-section" hidden>
+      <div class="section-header">Felt Against Measured</div>
+      <div class="card">
+        <div class="spread">
+          <div class="card-title" style="margin:0;">Life And Brain</div>
+          <a class="badge badge-describe" href="method.html#labels">Description</a>
+        </div>
+        <p class="finding" id="felt-finding"></p>
+        <div id="felt-table"></div>
+        <p class="footnote secondary" style="margin-top:12px;">Focus comes from the check-in square for how sharp you felt that day. Foggy means 4 or lower, and sharp means 7 or higher.</p>
+      </div>
+    </section>
+
+    <section class="section" id="device-section" hidden>
+      <div class="section-header">Devices</div>
+      <div class="group" id="device-rows"></div>
+      <p class="caveat" id="device-caveat" hidden></p>
+    </section>
+
+    <section class="section" data-fold>
+      <div class="section-header">What Matters For Attention</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Three Minutes, Validated</span>
+            <span class="row-sub">The three-minute version of this test detects sleep loss in laboratory studies, counting any response slower than 355 milliseconds as a lapse.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Weeks, Not Single Tests</span>
+            <span class="row-sub">A 2022 study found the short test tracks the ten-minute laboratory version only loosely, especially for lapses, so Myaku compares weeks and gives speed the larger say.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Easy To Miss</span>
+            <span class="row-sub">When people slept six hours a night for two weeks, their reaction times kept getting worse while their sleepiness ratings levelled off.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Caffeine Hides It</span>
+            <span class="row-sub">Caffeine speeds responses and cuts lapses during sleep loss, so a test soon after it can look better than you really are.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Same Hour Matters</span>
+            <span class="row-sub">Alertness follows a daily rhythm, so tests taken at different hours are partly measuring the clock.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Same Phone Matters</span>
+            <span class="row-sub">Phones differ in how fast they register a tap and draw the screen, so switching phones can shift your times.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">No Practice Effect</span>
+            <span class="row-sub">Taking the test repeatedly does not steadily improve scores, so a change across weeks is not just getting used to it.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Based on a <a href="https://pubmed.ncbi.nlm.nih.gov/22025811/" target="_blank" rel="noopener">2011 validation study</a>, a
+        <a href="https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.815697/full" target="_blank" rel="noopener">2022 comparison study</a>, a
+        <a href="https://academic.oup.com/sleep/article-abstract/26/2/117/2709164" target="_blank" rel="noopener">2003 sleep restriction study</a>, a
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4432086/" target="_blank" rel="noopener">caffeine study</a>, a
+        <a href="https://pubmed.ncbi.nlm.nih.gov/29126328/" target="_blank" rel="noopener">repeated testing study</a>, and a
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9918597/" target="_blank" rel="noopener">phone latency study</a>.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="group">
+        <a class="row" href="method.html">
+          <span class="row-main">
+            <span class="row-title">Brain Channel Method</span>
+            <span class="row-sub">How tests become one weekly reading, and when it counts as a pattern.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/channel.js"></script>
+  <script src="js/brain.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Body</title>
+  <meta name="theme-color" content="#060708" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Body Channel</div>
+      <h1 class="large-title">Body</h1>
+      <p class="nav-sub">What your wearable says about recovery, read against your own normal.</p>
+    </header>
+
+    <section class="section">
+      <div class="card">
+        <div class="card-title">Last Seven Days</div>
+        <div id="channel-state" aria-live="polite">Loading your body data.</div>
+        <div class="driver-axis" id="driver-axis" aria-hidden="true"><span>Better Than Usual</span><span>Worse Than Usual</span></div>
+        <div class="drivers" id="drivers"></div>
+        <div class="body-chart" id="channel-chart" role="img" aria-label="Body Channel By Week"></div>
+        <p class="footnote secondary" id="channel-note" style="margin-top:10px;"></p>
+      </div>
+    </section>
+
+    <section class="section" id="empty-section" hidden>
+      <div class="card">
+        <p class="callout">Connect a wearable, import from Apple Health, or enter a few nights by hand to open up your Body channel.</p>
+        <a class="btn btn-filled btn-block" href="sources.html" style="margin-top:14px;">Connect Body Data</a>
+      </div>
+    </section>
+
+    <section class="section" id="readings-section" hidden>
+      <div class="section-header">Last Night</div>
+      <div class="card">
+        <div class="readings" id="readings"></div>
+        <p class="footnote secondary" id="readings-note" style="margin-top:14px;"></p>
+      </div>
+    </section>
+
+    <section class="section" id="sleep-section" hidden>
+      <div class="section-header">Sleep</div>
+      <div class="card">
+        <div class="spread" style="align-items:flex-start;">
+          <div>
+            <div class="card-title">Nightly Average</div>
+            <div class="stat"><span class="stat-value" id="week-avg">—</span></div>
+            <p class="footnote secondary" id="week-avg-sub"></p>
+          </div>
+          <div style="text-align:right;">
+            <div class="card-title">Total Short Of Goal</div>
+            <div class="stat" style="justify-content:flex-end;"><span class="stat-value" id="week-short">—</span></div>
+            <p class="footnote secondary" id="week-short-sub"></p>
+          </div>
+        </div>
+        <p class="finding" id="sleep-finding"></p>
+        <div class="body-chart" id="schedule" role="img" aria-label="Your Last Two Weeks Of Sleep"></div>
+        <div class="legend" id="schedule-legend"></div>
+        <div class="bedtime-row">
+          <label class="field-label" for="goal">Sleep Goal</label>
+          <select class="field" id="goal"></select>
+        </div>
+        <p class="footnote secondary" id="goal-note" style="margin-top:10px;"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Consistency</div>
+        <div class="tiles" id="consistency-tiles"></div>
+        <p class="body" id="consistency-sentence" style="margin-top:14px;"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tonight</div>
+        <div class="bedtime-row" style="margin-top:0;">
+          <label class="field-label" for="wake">Wake Up Tomorrow</label>
+          <input class="field" id="wake" type="time" />
+        </div>
+        <p class="footnote secondary" style="margin-top:18px;">In Bed By</p>
+        <div class="stat"><span class="stat-value" id="lights-out">—</span></div>
+        <p class="body" id="tonight-sentence" style="margin-top:8px;"></p>
+        <button class="btn btn-tinted btn-block" id="use-bedtime" style="margin-top:16px;">Use As My Bedtime</button>
+        <p class="status-line" id="use-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="section" id="hrv-section" hidden>
+      <div class="section-header">Heart Rate Variability</div>
+      <div class="card">
+        <div class="spread">
+          <div>
+            <div class="card-title">Seven-Day Average</div>
+            <div class="stat"><span class="stat-value" id="hrv-now">—</span><span class="stat-unit">ms</span></div>
+          </div>
+          <span id="hrv-pill"></span>
+        </div>
+        <p class="finding" id="hrv-finding"></p>
+        <div class="body-chart" id="hrv-chart" role="img" aria-label="Heart Rate Variability Over Six Weeks"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch point" style="background:var(--ch-auto);"></span>Daily Reading</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--ch-auto);"></span>Seven-Day Average</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--green);"></span>Your Normal Range</span>
+        </div>
+        <details class="howto">
+          <summary>How To Read This</summary>
+          <div class="howto-body">
+            <p>Each faint dot is one morning, and the line is the average of the seven days up to that point. A single morning moves with a late meal, a hard session, or a bad night, so the line is the part to watch.</p>
+            <p>Your normal range comes from the four weeks before this one, set at half of your own usual day-to-day swing. That is a threshold sports scientists commonly use, not one proven to be exactly right. Higher usually means better recovered, and a drop below the range that lasts is the signal worth noticing.</p>
+          </div>
+        </details>
+        <p class="caveat" id="hrv-caveat" hidden></p>
+      </div>
+    </section>
+
+    <section class="section" id="rhr-section" hidden>
+      <div class="section-header">Resting Heart Rate</div>
+      <div class="card">
+        <div class="spread">
+          <div>
+            <div class="card-title">Seven-Day Average</div>
+            <div class="stat"><span class="stat-value" id="rhr-now">—</span><span class="stat-unit">bpm</span></div>
+          </div>
+          <span id="rhr-pill"></span>
+        </div>
+        <p class="finding" id="rhr-finding"></p>
+        <div class="body-chart" id="rhr-chart" role="img" aria-label="Resting Heart Rate Over Six Weeks"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch point" style="background:var(--ch-auto);"></span>Daily Reading</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--ch-auto);"></span>Seven-Day Average</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--green);"></span>Your Normal Range</span>
+        </div>
+        <details class="howto">
+          <summary>How To Read This</summary>
+          <div class="howto-body">
+            <p>Lower usually means better recovered. A rise above your range that lasts several days often comes with heavy training, short sleep, illness, heat, or stress.</p>
+            <p>The range is built the same way as heart rate variability, from the four weeks before this one.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="hard-section" hidden>
+      <div class="section-header">After Hard Days</div>
+      <div class="card" id="hard-body"></div>
+    </section>
+
+    <section class="section" data-fold>
+      <div class="section-header">What Matters For Recovery</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Under Eight Hours</span>
+            <span class="row-sub">In a 2014 study, adolescent athletes who slept under eight hours a night were 1.7 times more likely to be injured.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Sleep Need By Age</span>
+            <span class="row-sub">Sleep medicine guidance is 8 to 10 hours for ages 13 to 18, and at least 7 hours for adults.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">More Sleep, Better Play</span>
+            <span class="row-sub">College basketball players who extended their sleep sprinted faster, shot more accurately, and reacted faster on the same kind of test Myaku uses.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Regular Schedules Matter</span>
+            <span class="row-sub">In a 2017 study of college students, irregular sleep went with lower grades and a later body clock, even when total sleep was similar.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Read The Average</span>
+            <span class="row-sub">Single mornings of heart rate data are noisy, so a change only shows reliably across several days of readings.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Same Device Only</span>
+            <span class="row-sub">Apple Watch reports a different variability measure than Whoop and Fitbit, so switching devices can look like a change in you.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Based on a <a href="https://journals.lww.com/pedorthopaedics/fulltext/2014/03000/chronic_lack_of_sleep_is_associated_with_increased.1.aspx" target="_blank" rel="noopener">2014 injury study</a>,
+        <a href="https://aasm.org/advocacy/position-statements/teen-sleep-duration-health-advisory/" target="_blank" rel="noopener">sleep medicine guidance</a>, a
+        <a href="https://pubmed.ncbi.nlm.nih.gov/21731144/" target="_blank" rel="noopener">2011 basketball study</a>, a
+        <a href="https://pubmed.ncbi.nlm.nih.gov/28607474/" target="_blank" rel="noopener">2017 regularity study</a>, and a
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3936188/" target="_blank" rel="noopener">2014 review of heart rate monitoring</a>.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="group">
+        <a class="row" href="method.html">
+          <span class="row-main">
+            <span class="row-title">Body Channel Method</span>
+            <span class="row-sub">How the four measures become one weekly reading, and when it counts as a pattern.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/channel.js"></script>
+  <script src="js/body.js"></script>
+</body>
+</html>

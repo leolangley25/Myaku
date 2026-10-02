@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Myaku — Life</title>
+  <meta name="theme-color" content="#060708" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Myaku" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="screen">
+    <header class="nav-large">
+      <div class="eyebrow">Life Channel</div>
+      <h1 class="large-title">Life</h1>
+      <p class="nav-sub">How your days and weeks are landing on you, in your own words.</p>
+    </header>
+
+    <section class="section" id="support-top" hidden>
+      <div class="support-card">
+        <p class="title-3">Worth Talking To Someone</p>
+        <p class="body" style="margin-top:8px;">
+          This has held long enough that a person is more useful than an app. Your athletic trainer, a sports
+          psychologist, or campus counselling are all good first steps.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <div class="card-title">Last Seven Days</div>
+        <div id="channel-state" aria-live="polite">Loading your check-ins.</div>
+        <div class="driver-axis" id="driver-axis" aria-hidden="true"><span>Better Than Usual</span><span>Worse Than Usual</span></div>
+        <div class="drivers" id="drivers"></div>
+        <div class="body-chart" id="channel-chart" role="img" aria-label="Life Channel By Week"></div>
+        <p class="footnote secondary" id="channel-note" style="margin-top:10px;"></p>
+        <div class="grid-2" style="margin-top:16px;">
+          <a class="btn btn-filled" href="checkin.html">Do A Check-In</a>
+          <a class="btn btn-tinted" href="weekly.html">Weekly Reflection</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="empty-section" hidden>
+      <div class="card">
+        <p class="callout">Check in for a few days and do a weekly reflection to open up your Life channel.</p>
+      </div>
+    </section>
+
+    <section class="section" id="numbers-section" hidden>
+      <div class="section-header">Your Week In Numbers</div>
+      <div class="card">
+        <div class="tiles" id="coverage-tiles"></div>
+      </div>
+      <div class="group" id="numbers-rows" style="margin-top:12px;"></div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Each is your average for the last seven days on a scale of 0 to 10, next to your usual from the four weeks before.
+      </p>
+    </section>
+
+    <section class="section" id="strain-section" hidden>
+      <div class="section-header">Load And Whose Call</div>
+      <div class="card">
+        <p class="finding" id="strain-finding" style="margin-top:0;"></p>
+        <div class="body-chart svg-center" id="strain-chart" role="img" aria-label="Load Against Your Call Over Four Weeks"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch point" style="background:var(--ch-psy);opacity:1;"></span>Last Seven Days</span>
+          <span class="legend-item"><span class="legend-swatch point" style="background:var(--ch-psy);"></span>Earlier</span>
+          <span class="legend-item"><span class="legend-swatch zone" style="background:var(--red);"></span>Strain Corner</span>
+        </div>
+        <div class="body-chart" id="trend-chart" role="img" aria-label="Load And Your Call Over Six Weeks"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--orange);"></span>Load</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--teal);"></span>Your Call</span>
+        </div>
+        <details class="howto">
+          <summary>How To Read This</summary>
+          <div class="howto-body">
+            <p>The square places each check-in by how heavy the day was, left to right, and how much of it was your call, bottom to top. A bigger dot means the same answer came up more than once.</p>
+            <p>The bottom-right corner is a heavy day that was not your call. The line chart shows seven-day averages of both, so you can see whether load is climbing or less of it is your call.</p>
+          </div>
+        </details>
+      </div>
+      <div class="group" id="domain-rows" style="margin-top:12px;"></div>
+      <p class="footnote secondary" id="domain-note" style="margin-top:10px;padding:0 4px;"></p>
+    </section>
+
+    <section class="section" id="mood-section" hidden>
+      <div class="section-header">Mood</div>
+      <div class="card">
+        <p class="finding" id="mood-finding" style="margin-top:0;"></p>
+        <div class="quad-grid" id="mood-grid"></div>
+        <p class="footnote secondary" style="margin-top:12px;">
+          Counted over the last two weeks from the mood square on your check-ins and any journal entry you rated.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="writing-section" hidden>
+      <div class="section-header">What Your Writing Says</div>
+      <div class="card" id="writing-card">
+        <p class="finding" id="writing-finding" style="margin-top:0;"></p>
+        <div class="body-chart" id="writing-chart" role="img" aria-label="How Heavy Your Entries Read By Week"></div>
+        <p class="field-label">What You Write About</p>
+        <div id="writing-about"></div>
+        <div id="writing-signs-wrap">
+          <p class="field-label">Signs In Your Writing</p>
+          <div id="writing-signs"></div>
+        </div>
+        <div id="writing-lifts-wrap">
+          <p class="field-label">What Helped</p>
+          <div id="writing-lifts"></div>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--ch-psy);"></span>Last Two Weeks</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--on-surface);opacity:0.55;width:3px;"></span>The Six Before</span>
+        </div>
+        <p class="footnote secondary" id="writing-agree" style="margin-top:12px;"></p>
+        <p class="caveat">Read on your own computer from entries you allowed. Open any entry in your journal to see or fix what was taken from it.</p>
+      </div>
+      <div class="card" id="writing-invite" hidden>
+        <p class="body">Your journal can count here too. Turn on reading in the journal and a model on this computer will pick up what your entries keep coming back to, without sending a word anywhere.</p>
+        <a class="btn btn-tinted btn-block" href="journal.html#counting-section" style="margin-top:14px;">Journal Settings</a>
+      </div>
+    </section>
+
+    <section class="section" id="connection-section" hidden>
+      <div class="section-header">People Around You</div>
+      <div class="card">
+        <p class="finding" id="connection-finding" style="margin-top:0;"></p>
+        <p class="footnote secondary">From the weekly reflection. Feeling cut off from people is linked with burnout in athletes, so it counts toward this channel.</p>
+      </div>
+    </section>
+
+    <section class="section" id="burnout-section" hidden>
+      <div class="section-header">Burnout Signs</div>
+      <div class="card">
+        <p class="finding" id="burnout-finding" style="margin-top:0;"></p>
+        <div class="body-chart" id="burnout-chart" role="img" aria-label="Burnout Signs By Week"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--red);"></span>Exhaustion</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--orange);"></span>Less Accomplishment</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--purple);"></span>Caring Less About Sport</span>
+        </div>
+        <p class="footnote secondary" style="margin-top:12px;">Higher always means worse, so accomplishment is drawn as how much of it was missing.</p>
+        <p class="caveat">Each sign is one question from a longer published questionnaire, so this tracks your own trend and is not a diagnosis.</p>
+      </div>
+    </section>
+
+    <section class="section" id="drivers-section" hidden>
+      <div class="section-header">Heavy Day Patterns</div>
+      <div class="card">
+        <p class="finding" id="drivers-finding" style="margin-top:0;"></p>
+        <div class="tag-bars" id="drivers-bars"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--warning);"></span>Heaviest Days</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--outline);"></span>Lightest Days</span>
+        </div>
+        <p class="footnote secondary" style="margin-top:12px;">Your heaviest third of check-ins against your lightest third, using the tags you chose.</p>
+      </div>
+    </section>
+
+    <section class="section" id="felt-section" hidden>
+      <div class="section-header">Felt Against Measured</div>
+      <div class="card">
+        <div class="spread">
+          <div class="card-title" style="margin:0;">Life And Body</div>
+          <a class="badge badge-describe" href="method.html#labels">Description</a>
+        </div>
+        <p class="finding" id="felt-finding"></p>
+        <p class="footnote secondary">Neither side is the right one. A gap that keeps showing up is worth noticing either way.</p>
+        <a class="btn btn-tinted btn-block" href="body.html#sleep-section" style="margin-top:14px;">See Your Sleep</a>
+      </div>
+    </section>
+
+    <section class="section" data-fold>
+      <div class="section-header">What Matters For Burnout</div>
+      <div class="group">
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Demand Without Control</span>
+            <span class="row-sub">Decades of workplace research link high demands with little control over them to strain and burnout, more than demand alone.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Three Separate Signs</span>
+            <span class="row-sub">Athlete burnout is measured as exhaustion, a reduced sense of accomplishment, and caring less about the sport, and each can move on its own.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Feeling Alone</span>
+            <span class="row-sub">Self-determination research links unmet needs, including feeling cut off from people, with burnout in athletes.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Feelings Count</span>
+            <span class="row-sub">What you report is a measurement too, and it covers school, sport, and life in a way no sensor can.</span>
+          </span>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <span class="row-main">
+            <span class="row-title">Not A Diagnosis</span>
+            <span class="row-sub">This describes patterns in your own answers. A trainer, sports psychologist, or counsellor can tell you what they mean.</span>
+          </span>
+        </div>
+      </div>
+      <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
+        Based on a <a href="https://www.researchgate.net/publication/242179592_Karasek's_1979_job_demands-control_model_A_summary_of_current_issues_and_recommendations_for_future_research" target="_blank" rel="noopener">review of the demand and control model</a>, the
+        <a href="https://journals.humankinetics.com/view/journals/jsep/23/4/article-p281.xml" target="_blank" rel="noopener">2001 athlete burnout questionnaire</a>, and a
+        <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1502174/full" target="_blank" rel="noopener">2025 review of athlete burnout studies</a>.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="support-card">
+        <p class="title-3">Need Help Now</p>
+        <p class="body" style="margin-top:8px;">Call or text <a href="tel:988">988</a> to reach the Suicide and Crisis Lifeline, available at any hour.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="group">
+        <a class="row" href="method.html">
+          <span class="row-main">
+            <span class="row-title">Life Channel Method</span>
+            <span class="row-sub">How check-ins and reflections become one weekly reading, and when it counts as a pattern.</span>
+          </span>
+          <span class="chevron" aria-hidden="true"></span>
+        </a>
+      </div>
+    </section>
+
+    <div style="height:24px;"></div>
+  </div>
+
+  <script src="js/motion.js"></script>
+  <script src="js/explain.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/channel.js"></script>
+  <script src="js/life.js"></script>
+</body>
+</html>

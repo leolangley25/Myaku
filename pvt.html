@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Myaku — Vigilance</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <title>Myaku — Reaction Test</title>
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -39,7 +38,7 @@
     <div id="intro">
       <section class="section" id="coverage-section" hidden>
         <div class="card">
-          <div class="spread"><span class="row-title">This Week</span><span class="row-value" id="coverage-count"></span></div>
+          <div class="spread"><span class="row-title">Last Seven Days</span><span class="row-value" id="coverage-count"></span></div>
           <div class="meter" id="coverage-meter" style="margin-top:10px;" role="progressbar"
             aria-label="Reaction Tests This Week" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span style="width:0%"></span></div>
           <p class="footnote secondary" style="margin-top:10px;" id="coverage-note"></p>
@@ -50,61 +49,71 @@
         <div class="group">
           <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Tap the moment the counter appears.</span><span class="row-sub">It arrives at random intervals between one and four seconds.</span></span></div>
           <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Run it at the same hour each time.</span><span class="row-sub">Alertness follows a daily rhythm, so a moving hour measures the clock.</span></span></div>
-          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Keep the screen in front of you.</span><span class="row-sub">Leaving the app mid-session discards the timings.</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Use the same phone each time.</span><span class="row-sub">Phones register taps at different speeds, so switching can look like a change in you.</span></span></div>
+          <div class="row" style="align-items:flex-start;"><span class="row-main"><span class="row-title">Keep the screen in front of you.</span><span class="row-sub">Leaving the app partway through discards the timings.</span></span></div>
         </div>
       </section>
 
       <section class="section">
         <button class="btn btn-filled btn-block" id="start-btn">Start Three Minutes</button>
         <button class="btn btn-tinted btn-block" id="short-btn" style="margin-top:12px;">Quick Sixty Seconds</button>
+        <p class="footnote secondary" style="margin-top:10px;text-align:center;">The quick version still counts, but three minutes gives a steadier reading.</p>
+        <p class="status-line" id="discard-status" aria-live="polite"></p>
       </section>
 
       <section class="section">
-        <div class="section-header">Timing On This Device</div>
-        <div class="group" id="env"></div>
-        <p class="footnote secondary" style="margin-top:10px;padding:0 4px;">
-          Measured before the test, because a result is only worth keeping if the screen itself is steady.
-        </p>
+        <details class="howto" style="margin-top:0;">
+          <summary>Timing On This Device</summary>
+          <div class="howto-body">
+            <p>Measured before each test, because a result is only worth keeping if the screen itself is steady.</p>
+            <div class="group" id="env"></div>
+          </div>
+        </details>
       </section>
     </div>
 
     <div id="results" hidden>
       <section class="section">
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-title">Mean Reaction</div>
-            <div class="stat"><span class="stat-value" id="res-mean">—</span><span class="stat-unit">ms</span></div>
-            <div style="margin-top:10px;" id="res-pill"></div>
+        <div class="card">
+          <div class="spread" style="align-items:flex-start;">
+            <div>
+              <div class="card-title">Average Reaction</div>
+              <div class="stat"><span class="stat-value" id="res-mean">—</span><span class="stat-unit">ms</span></div>
+            </div>
+            <div style="text-align:right;">
+              <div class="card-title">Lapses</div>
+              <div class="stat" style="justify-content:flex-end;"><span class="stat-value" id="res-lapses">—</span></div>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-title">Lapses</div>
-            <div class="stat"><span class="stat-value" id="res-lapses">—</span></div>
-            <p class="footnote secondary" style="margin-top:8px;">Responses slower than 355 milliseconds.</p>
-          </div>
+          <p class="finding" id="res-finding"></p>
+          <p class="body secondary" id="res-context" style="margin-top:6px;"></p>
+          <p class="caveat" id="res-caffeine" hidden></p>
         </div>
       </section>
 
       <section class="section">
         <div class="card">
-          <div class="card-title">Every Trial</div>
-          <div id="res-chart" style="height:160px;margin-top:8px;"></div>
-          <p class="footnote secondary" style="margin-top:10px;">The flat line is the lapse threshold.</p>
+          <div class="card-title">Every Response</div>
+          <div class="body-chart" id="res-chart" role="img" aria-label="Every Response In This Test" style="margin-top:0;"></div>
+          <p class="footnote secondary" style="margin-top:10px;">
+            Each dot is one tap, from first to last. Anything above the dashed line, slower than 355 milliseconds, counts as a lapse.
+          </p>
         </div>
       </section>
 
       <section class="section">
-        <div class="section-header">Session Detail</div>
-        <div class="group" id="res-detail"></div>
+        <details class="howto" style="margin-top:0;">
+          <summary>Test Detail</summary>
+          <div class="howto-body">
+            <div class="group" id="res-detail"></div>
+            <div id="res-power" style="margin-top:14px;"></div>
+          </div>
+        </details>
       </section>
 
       <section class="section">
-        <div class="section-header">What This Can Resolve</div>
-        <div class="card" id="res-power"></div>
-      </section>
-
-      <section class="section">
-        <p class="footnote secondary" style="text-align:center;" id="save-status"></p>
-        <a class="btn btn-filled btn-block" href="index.html" style="margin-top:10px;">Done</a>
+        <p class="footnote secondary" style="text-align:center;" id="save-status" aria-live="polite"></p>
+        <a class="btn btn-filled btn-block" href="brain.html" style="margin-top:10px;">See Your Brain Channel</a>
         <button class="btn btn-tinted btn-block" id="again-btn" style="margin-top:12px;">Run Another</button>
       </section>
     </div>
@@ -115,6 +124,7 @@
   <script src="js/motion.js"></script>
   <script src="js/explain.js"></script>
   <script src="js/core.js"></script>
+  <script src="js/channel.js"></script>
   <script src="js/pvt.js"></script>
 </body>
 </html>

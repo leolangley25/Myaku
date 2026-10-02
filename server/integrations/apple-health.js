@@ -43,6 +43,9 @@ function wallClock(stamp) {
    night instead of being split across two days. */
 const nightOf = (wall) => new Date(wall + 6 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
+/* A wall-clock moment as the stamp the database stores. */
+const stampOf = (wall) => new Date(wall).toISOString().slice(0, 16).replace("T", " ");
+
 const median = (a) => {
   const s = [...a].sort((x, y) => x - y);
   const m = Math.floor(s.length / 2);
@@ -79,10 +82,16 @@ async function parseAppleHealth(stream) {
     const minutes = (end.instant - start.instant) / 60000;
     const night = nightOf(end.wall);
     const source = attr(line, "sourceName") || "unknown";
-    const slot = ((sleep[night] = sleep[night] || {})[source] = sleep[night][source] || { asleep: 0, inBed: 0 });
+    const slot = ((sleep[night] = sleep[night] || {})[source] =
+      sleep[night][source] || { asleep: 0, inBed: 0, first: Infinity, last: -Infinity });
 
     if (value === "HKCategoryValueSleepAnalysisInBed") slot.inBed += minutes;
-    else if (value.startsWith("HKCategoryValueSleepAnalysisAsleep")) slot.asleep += minutes;
+    else if (value.startsWith("HKCategoryValueSleepAnalysisAsleep")) {
+      slot.asleep += minutes;
+      // The night runs from the first moment asleep to the last.
+      slot.first = Math.min(slot.first, start.wall);
+      slot.last = Math.max(slot.last, end.wall);
+    }
     // Awake segments are ignored; they are already the gap between asleep and in bed.
   }
 
@@ -97,12 +106,17 @@ async function parseAppleHealth(stream) {
      efficiency is only reported when some source actually recorded time in bed. */
   Object.entries(sleep).forEach(([night, sources]) => {
     const slots = Object.values(sources);
-    const asleep = Math.max(...slots.map((s) => s.asleep));
+    const best = slots.reduce((a, b) => (b.asleep > a.asleep ? b : a));
+    const asleep = best.asleep;
     const inBed = Math.max(...slots.map((s) => s.inBed));
     if (asleep < 30) return;
     const r = row(night);
     r.sleepMinutes = asleep;
     if (inBed >= asleep) r.sleepEfficiency = Math.min(100, (asleep / inBed) * 100);
+    if (Number.isFinite(best.first)) {
+      r.sleepStart = stampOf(best.first);
+      r.sleepEnd = stampOf(best.last);
+    }
   });
 
   return {

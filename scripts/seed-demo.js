@@ -83,28 +83,59 @@ db.prepare("INSERT INTO reminder_prefs (user_id, timezone) VALUES (?, ?)")
 /* ---------------- channel A: steady body ---------------- */
 
 const insertMetric = db.prepare(`INSERT INTO daily_metrics
-  (user_id, date, hrv_ms, rhr_bpm, sleep_minutes, sleep_efficiency, source)
-  VALUES (?, ?, ?, ?, ?, ?, 'demo')`);
+  (user_id, date, hrv_ms, rhr_bpm, sleep_minutes, sleep_efficiency, sleep_start, sleep_end, source)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'demo')`);
+
+/* When each night started and ended. Drawn from a generator of its own, so adding
+   it does not shift a single number the demo's named patterns depend on. Bedtime
+   drifts later as the term gets heavier, and weekend nights start later. */
+let timingSeed = 20260914;
+function jitter(sd) {
+  let z = 0;
+  for (let k = 0; k < 6; k++) {
+    timingSeed = (timingSeed * 1103515245 + 12345) & 0x7fffffff;
+    z += timingSeed / 0x7fffffff;
+  }
+  return ((z - 3) / Math.sqrt(0.5)) * sd;
+}
+const pad2 = (n) => String(n).padStart(2, "0");
+function stampFor(i, minutesFromMidnight) {
+  const d = new Date(start);
+  d.setDate(d.getDate() + i);
+  d.setMinutes(Math.round(minutesFromMidnight));
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
 
 for (let i = 0; i < DAYS; i++) {
   const p = pressure(i);
   // Sleep shortens a little under pressure, but nothing a recovery score
   // would call alarming. The body is deliberately the boring channel.
-  insertMetric.run(
-    userId, dayKey(i),
-    round(gauss(68 - p * 3, 5.5), 1),
-    round(gauss(52 + p * 1.5, 2.2), 1),
-    round(gauss(452 - p * 28, 32)),
-    round(gauss(92 - p * 1.2, 2.4), 1)
-  );
+  const hrv = round(gauss(68 - p * 3, 5.5), 1);
+  const rhr = round(gauss(52 + p * 1.5, 2.2), 1);
+  const asleep = round(gauss(452 - p * 28, 32));
+  const efficiency = round(gauss(92 - p * 1.2, 2.4), 1);
+
+  const morning = new Date(start);
+  morning.setDate(morning.getDate() + i);
+  const weekend = morning.getDay() === 0 || morning.getDay() === 6;
+  const bed = -55 + p * 45 + (weekend ? 50 : 0) + jitter(22);
+  const inBed = asleep / (efficiency / 100);
+
+  insertMetric.run(userId, dayKey(i), hrv, rhr, asleep, efficiency, stampFor(i, bed), stampFor(i, bed + inBed));
 }
 
 /* ---------------- channel C: reaction time slows ---------------- */
 
 const insertPvt = db.prepare(`INSERT INTO pvt_sessions
   (user_id, date, started_at, duration_ms, n_trials, mean_rt, median_rt,
-   mean_reciprocal, sd_rt, sem_rt, lapses, false_starts, caffeine_minutes_prior, valid)
-  VALUES (?, ?, ?, 180000, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`);
+   mean_reciprocal, sd_rt, sem_rt, lapses, false_starts, caffeine_minutes_prior, device, local_time, valid)
+  VALUES (?, ?, ?, 180000, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`);
+
+// The hour drifts a little from test to test, the way a real morning routine does.
+const testTime = () => {
+  const m = Math.round(440 + jitter(14));
+  return `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`;
+};
 
 for (let i = 0; i < DAYS; i++) {
   // Monday, Wednesday, Friday, before training.
@@ -122,7 +153,9 @@ for (let i = 0; i < DAYS; i++) {
     round(mean, 1), round(mean - gauss(8, 3), 1),
     round(1000 / mean, 3), round(sd, 1), round(sd / Math.sqrt(n), 2),
     lapses, Math.round(rnd() * 1.4),
-    rnd() < 0.35 ? Math.round(gauss(50, 20)) : null
+    rnd() < 0.35 ? Math.round(gauss(50, 20)) : null,
+    "iPhone · Touch · 120 Hz",
+    testTime()
   );
 }
 
@@ -247,11 +280,11 @@ for (let i = 0; i < DAYS; i++) {
 /* ---------------- journal and context ---------------- */
 
 /* Entries carry the rating the athlete typed, on the same square the daily
-   check-in uses. That rating is the only part that reaches the psychological
-   channel; the text sits here and is never read by anything. */
+   check-in uses. The text is read only if the athlete turns reading on in the
+   journal, and then only by a model on their own machine. */
 const insertJournal = db.prepare(
-  `INSERT INTO journal_entries (user_id, entry_date, content, valence, arousal, domains)
-   VALUES (?, ?, ?, ?, ?, ?)`
+  `INSERT INTO journal_entries (user_id, entry_date, content, valence, arousal, domains, word_count)
+   VALUES (?, ?, ?, ?, ?, ?, ?)`
 );
 
 const NOTES = [
@@ -265,7 +298,7 @@ const NOTES = [
   [54, "Did not want to go in today. Went anyway, but that is new and I do not love it.", -0.68, -0.3, "Training,Personal"],
 ];
 NOTES.forEach(([i, text, valence, arousal, domains]) =>
-  insertJournal.run(userId, dayKey(i), text, valence, arousal, domains)
+  insertJournal.run(userId, dayKey(i), text, valence, arousal, domains, text.trim().split(/\s+/).length)
 );
 
 db.prepare("INSERT INTO phases (user_id, label, start_date, end_date) VALUES (?, ?, ?, ?)")
@@ -300,7 +333,7 @@ console.log(`  ${snap.journal.length} journal entries, ${snap.journal.filter((j)
 console.log("");
 
 ["light", "medium", "heavy"].forEach((s) => {
-  const d = compute({ ...snap, sensitivity: s });
+  const d = compute({ ...snap, sensitivity: s, today: dayKey(DAYS - 1) });
   const f = (z) => (z == null ? "  null" : ((z > 0 ? "+" : "") + z.toFixed(2)).padStart(6));
   console.log(
     `  ${s.padEnd(7)} body${f(d.channels.autonomic.z)}  brain${f(d.channels.cognitive.z)}  life${f(d.channels.psychological.z)}` +

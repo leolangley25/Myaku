@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Myaku — More</title>
-  <meta name="theme-color" content="#f3edf7" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#211f26" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#060708" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" href="icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -15,7 +14,7 @@
   <meta name="apple-mobile-web-app-title" content="Myaku" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -37,7 +36,8 @@
     </section>
 
     <section class="section">
-      <div class="section-header">High-Load Periods</div>
+      <div class="section-header">Busy Periods</div>
+      <p class="footnote secondary" style="padding:0 4px 12px;">Mark stretches like exams or travel, so Trends can compare them with the rest of your season.</p>
       <div class="card">
         <label class="field-label" for="phase-label" style="margin-top:0;">Name</label>
         <input class="field" id="phase-label" placeholder="Finals Week" maxlength="60" />
@@ -51,7 +51,7 @@
             <input class="field" id="phase-end" type="date" />
           </div>
         </div>
-        <button class="btn btn-tinted btn-block" id="phase-add" style="margin-top:14px;">Mark A Period</button>
+        <button class="btn btn-tinted btn-block" id="phase-add" style="margin-top:14px;">Add Busy Period</button>
         <p class="status-line" id="phase-status" aria-live="polite"></p>
       </div>
       <div class="group" id="phases" style="margin-top:12px;"></div>
@@ -96,13 +96,13 @@
         <div class="row" style="align-items:flex-start;">
           <span class="row-main">
             <span class="row-title">Campus Sports Psychology</span>
-            <span class="row-sub">Confidential support for performance and mental health.</span>
+            <span class="row-sub">Confidential support for performance and mental health. Ask your athletic department how to reach them.</span>
           </span>
         </div>
         <div class="row" style="align-items:flex-start;">
           <span class="row-main">
             <span class="row-title">Counseling Services</span>
-            <span class="row-sub">Free and confidential for enrolled students.</span>
+            <span class="row-sub">Free and confidential for enrolled students. Your student portal lists how to book.</span>
           </span>
         </div>
       </div>

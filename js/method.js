@@ -14,7 +14,7 @@
     </div>`)
     .join("");
 
-  const LEVEL_NAMES = { light: "Light", medium: "Medium", heavy: "Heavy" };
+  const LEVEL_NAMES = { light: "Fewer Alerts", medium: "Balanced", heavy: "More Alerts" };
 
   M.api("/api/method")
     .then((m) => {

@@ -62,6 +62,55 @@ test("a more sensitive setting never reports fewer disagreements", () => {
   assert.ok(heavy.readings.length >= light.readings.length);
 });
 
+test("readings use the last seven days, so a Monday is not judged on one day alone", () => {
+  const data = season({ pressure: true });
+  const monday = key(56);
+  data.metrics.push({ date: monday, hrv_ms: 68, rhr_bpm: 52, sleep_minutes: 450, sleep_efficiency: 92 });
+
+  const d = compute({ ...data, sensitivity: "medium", today: monday });
+  const points = d.channels.autonomic.points;
+  // The latest window runs from the Tuesday before through the Monday itself.
+  assert.equal(points[points.length - 1].week, key(50));
+  assert.equal(d.anchor, monday);
+
+  assert.deepEqual(Object.keys(d.channels.cognitive.parts).sort(), ["lapses", "speed"]);
+  assert.deepEqual(
+    Object.keys(d.channels.psychological.parts).sort(),
+    ["burnout", "connection", "control", "focus", "load", "mood", "motivation", "recovery", "strain", "writing"]
+  );
+  assert.ok(d.channels.cognitive.parts.speed > 1, `speed z ${d.channels.cognitive.parts.speed}`);
+});
+
+test("a weekly reflection counts toward the seven days it describes", () => {
+  const data = season({ pressure: true });
+  data.weekly = Array.from({ length: 8 }, (_, w) => ({
+    week_start: key(w * 7), demand_training: 4, control_training: 5,
+    abq_exhaustion: w >= 5 ? 4 : 2, abq_accomplishment: 4, abq_devaluation: 1,
+  }));
+  // A Tuesday, when the latest reflection's Monday has already left the window.
+  const d = compute({ ...data, sensitivity: "medium", today: key(57) });
+  assert.notEqual(d.channels.psychological.parts.burnout, null);
+  assert.notEqual(d.channels.psychological.parts.strain, null);
+});
+
+test("the season timeline reads each past week the way the model would have at the time", () => {
+  const { season: seasonTimeline } = require("../server/trends");
+  const data = season({ pressure: true });
+  const r = seasonTimeline({ ...data, sensitivity: "medium", today: key(55) });
+
+  assert.equal(r.hasData, true);
+  assert.equal(r.weeks.length, 8);
+  assert.equal(r.weeks[r.weeks.length - 1].end, key(55));
+  // The first week comes before any baseline exists, so it carries no pattern.
+  assert.equal(r.weeks[0].state, null);
+  // The quiet stretch is All Clear, and the pressured weeks at the end are not.
+  assert.ok(r.patterns.some((p) => p.key === "aligned"));
+  assert.notEqual(r.current.key, "aligned");
+  assert.ok(r.heldWeeks >= 1);
+  assert.ok(r.previous);
+  assert.equal(seasonTimeline({ today: key(55) }).hasData, false);
+});
+
 test("pattern names and guidance follow the house copy rules", () => {
   for (const [key, s] of Object.entries(PLAIN_STATES)) {
     const words = s.name.split(/\s+/);

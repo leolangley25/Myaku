@@ -26,11 +26,14 @@ const Explain = (() => {
     const notable = (thresholds && thresholds.notable) || 1.0;
     const marked = (thresholds && thresholds.marked) || 1.5;
 
-    if (z == null) return { key: "unknown", word: "Not Enough Data", tone: "" };
-    if (z >= marked) return { key: "high", word: "Well Above Usual", tone: "bad" };
-    if (z >= notable) return { key: "raised", word: "Above Usual", tone: "warn" };
-    if (z <= -notable) return { key: "low", word: "Better Than Usual", tone: "good" };
-    return { key: "typical", word: "Typical For You", tone: "good" };
+    /* "Above usual" used to stand for worse, which reads as good for anything a
+       person wants more of. Every word now names the direction outright, and the
+       short form is what fits inside a gauge. */
+    if (z == null) return { key: "unknown", word: "Still Learning", short: "Learning", tone: "" };
+    if (z >= marked) return { key: "high", word: "Much Worse Than Usual", short: "Much Worse", tone: "bad" };
+    if (z >= notable) return { key: "raised", word: "Worse Than Usual", short: "Worse", tone: "warn" };
+    if (z <= -notable) return { key: "low", word: "Better Than Usual", short: "Better", tone: "good" };
+    return { key: "typical", word: "Typical For You", short: "Typical", tone: "good" };
   }
 
   /* Where this week sits among the weeks actually recorded. A count of real
@@ -63,7 +66,7 @@ const Explain = (() => {
       high: "You are reacting more slowly than you normally do.",
       typical: "You are reacting about as fast as you normally do.",
       low: "You are reacting faster than you normally do.",
-      measures: "Your reaction time and lapses on the vigilance test, pooled by week.",
+      measures: "Your response speed and lapses on the reaction test, pooled over seven days.",
     },
     psychological: {
       plain: "how the weeks are landing on you",

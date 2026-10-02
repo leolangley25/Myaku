@@ -18,6 +18,7 @@
   const enabled = document.getElementById("enabled");
   const saveStatus = document.getElementById("save-status");
   let pvtDays = [1, 3, 5];
+  let hasDevice = false;
 
   function setStatus(el, tone, text) {
     el.className = `status-line${tone ? " " + tone : ""}`;
@@ -33,6 +34,19 @@
     deviceSwitch.disabled = !!blocked && !sub;
     deviceSub.textContent = sub ? "On for this device." : blocked ? "Not available here." : "Off for this device.";
     setStatus(deviceStatus, "", blocked && !sub ? blocked : "");
+    hasDevice = !!sub;
+    renderDelivery();
+  }
+
+  /* A schedule switched on with no device subscribed sends nothing at all, and
+     nothing on this page used to say so. */
+  function renderDelivery() {
+    const note = document.getElementById("delivery-note");
+    if (!enabled.checked) return setStatus(note, "", "Reminders are paused, so nothing is sent.");
+    setStatus(note, hasDevice ? "" : "error",
+      hasDevice
+        ? "This device will receive them."
+        : "No device is set to receive them yet, so turn the switch above on.");
   }
 
   deviceSwitch.addEventListener("change", async () => {
@@ -71,11 +85,22 @@
         const day = Number(b.dataset.day);
         pvtDays = pvtDays.includes(day) ? pvtDays.filter((d) => d !== day) : [...pvtDays, day].sort();
         b.setAttribute("aria-pressed", String(pvtDays.includes(day)));
+        markDirty();
       })
     );
   }
 
   document.getElementById("weekly-day").innerHTML = FULL_DAYS.map((d, i) => `<option value="${i}">${d}</option>`).join("");
+
+  /* Changing a time and walking away used to lose it silently, since only the
+     master switch saves itself. The page now says when something is pending. */
+  function markDirty() {
+    setStatus(saveStatus, "error", "Changed, but not saved yet.");
+  }
+
+  ["pvt-time", "checkin-time", "weekly-time", "weekly-day"].forEach((id) =>
+    document.getElementById(id).addEventListener("change", markDirty)
+  );
 
   async function load() {
     try {
@@ -92,6 +117,7 @@
         prefs.timezone === local
           ? `Times are in your time zone, ${local.replace(/_/g, " ")}.`
           : `Saved for ${prefs.timezone.replace(/_/g, " ")}. Saving again switches to ${local.replace(/_/g, " ")}, where this device is now.`;
+      renderDelivery();
     } catch {
       /* handled by the api layer */
     }
@@ -124,7 +150,10 @@
   }
 
   document.getElementById("save").addEventListener("click", () => save());
-  enabled.addEventListener("change", () => save());
+  enabled.addEventListener("change", () => {
+    renderDelivery();
+    save();
+  });
 
   document.getElementById("test").addEventListener("click", async (e) => {
     const btn = e.currentTarget;

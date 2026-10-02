@@ -12,9 +12,11 @@
     "test": "node --test test/*.test.js",
     "check:copy": "python scripts/check-copy.py",
     "seed": "node scripts/seed-demo.js",
-    "icons": "node scripts/make-icons.js"
+    "icons": "node scripts/make-icons.js",
+    "references": "node scripts/make-references.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
     "express": "^4.22.2",
     "express-session": "^1.19.0",
     "web-push": "^3.6.7"
